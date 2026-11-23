@@ -1,0 +1,34 @@
+# Copy to .github/workflows/pages.yml to publish a static copy of the site on GitHub Pages.
+#
+# The export reads your content from data/. To commit it, remove the `data/` line from the
+# root .gitignore: data/.gitignore keeps auth.json, secret.key and backups out of git.
+# Edit content locally (npm start, then /admin), commit data/, push, and this publishes it.
+#
+# Optional repository variables: BASE_PATH (e.g. /my-repo for project sites) and API_URL
+# (a live server that runs playground demos; without it they show as offline).
+name: Publish site
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.pages.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node bin/site.js export dist --site-url "https://${{ github.repository_owner }}.github.io" ${{ vars.BASE_PATH && format('--base {0}', vars.BASE_PATH) || '' }} ${{ vars.API_URL && format('--api-url {0}', vars.API_URL) || '' }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - id: pages
+        uses: actions/deploy-pages@v4

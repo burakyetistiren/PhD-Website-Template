@@ -1,0 +1,20 @@
+# docker compose up -d
+# Then put a reverse proxy with TLS in front (see deploy/Caddyfile), or open port 3000.
+services:
+  site:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      TRUST_PROXY: "true"
+    volumes:
+      - ./data:/data
+      # Playground demos: uncomment to let the site start sandboxed containers on this host.
+      # This gives the site control of the host's Docker daemon. Only enable it on a
+      # machine dedicated to the site, and only for images you built or trust.
+      # - /var/run/docker.sock:/var/run/docker.sock

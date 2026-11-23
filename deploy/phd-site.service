@@ -1,0 +1,22 @@
+# systemd unit for running the site directly on a Linux server (no container).
+# 1. Copy the repository to /srv/phd-site and create /srv/phd-site/.env
+# 2. sudo cp deploy/phd-site.service /etc/systemd/system/ && sudo systemctl enable --now phd-site
+# For playground demos, add the service user to the docker group: sudo usermod -aG docker www-data
+[Unit]
+Description=Personal academic website
+After=network.target docker.service
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/srv/phd-site
+Environment=NODE_ENV=production
+Environment=TRUST_PROXY=true
+ExecStart=/usr/bin/node server/index.js
+Restart=on-failure
+NoNewPrivileges=true
+ProtectSystem=full
+ReadWritePaths=/srv/phd-site/data
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shapeshift: JSON to TypeScript</title>
+<style>
+  :root {
+    --bg: #131a27; --panel: #19212f; --line: #2a3446; --ink: #e3e8f0; --dim: #8e99ad;
+    --err: #ffa58c; --kw: #9fb4ff; --type: #93dcae; --key: #ffe15c;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg); color: var(--ink); font: 14px/1.65 var(--mono); }
+  section { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  section + section { border-left: 1px solid var(--line); background: var(--panel); }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 8px 12px 8px 16px; font: 500 13px/1.2 var(--sans); color: var(--dim); }
+  select { padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); font: inherit; }
+  textarea, pre { flex: 1; margin: 0; padding: 4px 16px 20px; overflow: auto; font: inherit; tab-size: 2; }
+  textarea { border: 0; resize: none; outline: none; background: transparent; color: inherit; white-space: pre; }
+  textarea:focus-visible { box-shadow: inset 2px 0 0 var(--key); }
+  .kw { color: var(--kw); } .ty { color: var(--type); } .k { color: var(--key); } .err { color: var(--err); } .dim { color: var(--dim); }
+  #status { font-variant-numeric: tabular-nums; }
+  @media (max-width: 640px) { body { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; } section + section { border-left: 0; border-top: 1px solid var(--line); } }
+</style>
+</head>
+<body>
+<section>
+  <header>
+    <label for="input">JSON</label>
+    <select id="examples" aria-label="Load an example">
+      <option value="api">API response</option>
+      <option value="union">Union of records</option>
+      <option value="config">Config file</option>
+    </select>
+  </header>
+  <textarea id="input" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+</section>
+<section>
+  <header><span>TypeScript</span><span id="status" aria-live="polite"></span></header>
+  <pre id="output" tabindex="0"></pre>
+</section>
+<script>
+const EXAMPLES = {
+  api: { user: { id: 42, login: "rpark", name: "Robin Park", verified: true }, repos: [{ name: "shapeshift", stars: 1280, topics: ["types", "json"], license: "MIT" }, { name: "tidy", stars: 312, topics: [], license: null }], next: "/repos?page=2" },
+  union: [{ type: "commit", sha: "a1b2c3", message: "Fix parser" }, { type: "review", sha: "d4e5f6", approved: true }, { type: "commit", sha: "0718aa", message: "Add tests", files: 3 }],
+  config: { name: "my-tool", version: "1.4.0", compilerOptions: { strict: true, target: "es2022", paths: { "@/*": ["src/*"] } }, include: ["src"], plugins: [{ name: "lint", options: { maxLine: 100 } }] },
+};
+
+// ── Inference: every JSON value becomes a structural type; types merge into unions ──
+const prim = (name) => ({ kind: "prim", name });
+function infer(v) {
+  if (v === null) return prim("null");
+  if (Array.isArray(v)) return { kind: "array", of: v.length ? v.map(infer).reduce(merge) : prim("unknown") };
+  if (typeof v === "object") {
+    const fields = new Map();
+    for (const [k, val] of Object.entries(v)) fields.set(k, { type: infer(val), optional: false });
+    return { kind: "object", fields };
+  }
+  return prim(typeof v);
+}
+const members = (t) => (t.kind === "union" ? t.of : [t]);
+function merge(a, b) {
+  const out = [...members(a)];
+  for (const m of members(b)) {
+    const i = out.findIndex((x) => x.kind === m.kind && (x.kind !== "prim" || x.name === m.name));
+    if (i === -1) { out.push(m); continue; }
+    const x = out[i];
+    if (x.kind === "object") out[i] = mergeObjects(x, m);
+    else if (x.kind === "array") out[i] = { kind: "array", of: x.of.name === "unknown" ? m.of : m.of.name === "unknown" ? x.of : merge(x.of, m.of) };
+  }
+  return out.length === 1 ? out[0] : { kind: "union", of: out };
+}
+function mergeObjects(a, b) {
+  const fields = new Map();
+  for (const [k, f] of a.fields) {
+    const g = b.fields.get(k);
+    fields.set(k, g ? { type: merge(f.type, g.type), optional: f.optional || g.optional } : { ...f, optional: true });
+  }
+  for (const [k, g] of b.fields) if (!a.fields.has(k)) fields.set(k, { ...g, optional: true });
+  return { kind: "object", fields };
+}
+
+// ── Printing: nested objects become named interfaces ──
+const pascal = (s) => (s.replace(/[^A-Za-z0-9]+(.)?/g, (_, c) => (c ? c.toUpperCase() : "")).replace(/^./, (c) => c.toUpperCase()) || "Item");
+const singular = (s) => (/ies$/.test(s) ? s.slice(0, -3) + "y" : /ses$/.test(s) ? s.slice(0, -2) : /s$/.test(s) ? s.slice(0, -1) : s + "Item");
+const esc = (s) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+function emit(root) {
+  const decls = [];
+  const used = new Set();
+  const seen = new Map();
+  const nameFor = (base) => { let n = base, i = 2; while (used.has(n)) n = base + i++; used.add(n); return n; };
+  function ref(t, hint) {
+    if (t.kind === "prim") return `<span class="ty">${t.name}</span>`;
+    if (t.kind === "array") { const inner = ref(t.of, singular(hint)); return t.of.kind === "union" ? `(${inner})[]` : `${inner}[]`; }
+    if (t.kind === "union") return t.of.map((m) => ref(m, hint)).join(" | ");
+    const lines = [...t.fields].map(([k, f]) => {
+      const key = /^[A-Za-z_$][\w$]*$/.test(k) ? k : JSON.stringify(k);
+      return `  <span class="k">${esc(key)}</span>${f.optional ? "?" : ""}: ${ref(f.type, pascal(k))};`;
+    });
+    const body = lines.join("\n");
+    if (seen.has(body)) return seen.get(body);
+    const name = nameFor(pascal(hint));
+    seen.set(body, name);
+    decls.push(`<span class="kw">export interface</span> ${name} {\n${body}\n}`);
+    return name;
+  }
+  const top = ref(root, "Root");
+  if (root.kind !== "object") decls.push(`<span class="kw">export type</span> Root = ${top};`);
+  return decls.join("\n\n");
+}
+
+const input = document.getElementById("input");
+const output = document.getElementById("output");
+const status = document.getElementById("status");
+const examples = document.getElementById("examples");
+
+function update() {
+  const t0 = performance.now();
+  try {
+    const text = input.value.trim();
+    if (!text) { output.innerHTML = '<span class="dim">Paste some JSON on the left.</span>'; status.textContent = ""; return; }
+    output.innerHTML = emit(infer(JSON.parse(text)));
+    status.textContent = `${(performance.now() - t0).toFixed(1)} ms`;
+  } catch (e) {
+    output.innerHTML = `<span class="err">${esc(e.message)}</span>`;
+    status.textContent = "Invalid JSON";
+  }
+}
+function load(name) { input.value = JSON.stringify(EXAMPLES[name], null, 2); update(); }
+let timer;
+input.addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(update, 120); });
+examples.addEventListener("change", () => load(examples.value));
+load("api");
+</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "phd-site",
+  "version": "1.0.0",
+  "description": "Personal website template for CS PhD students, with a content API, an admin console, and hosted demos for developer tools.",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "site": "bin/site.js"
+  },
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch-path=server --watch-path=site --watch-path=shared server/index.js",
+    "site": "node bin/site.js",
+    "export": "node bin/site.js export dist",
+    "test": "node --test test/*.test.js"
+  }
+}

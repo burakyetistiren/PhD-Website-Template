@@ -1,0 +1,6 @@
+# Caddy gets and renews HTTPS certificates automatically.
+# Replace the domain, point its DNS at this server, then: caddy run --config deploy/Caddyfile
+robinpark.dev {
+	encode gzip
+	reverse_proxy 127.0.0.1:3000
+}
