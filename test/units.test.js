@@ -30,6 +30,7 @@ test('markdown renders common blocks', () => {
   assert.match(out, /<blockquote><p>quote<\/p><\/blockquote>/);
   assert.equal(renderInline('[**a**](https://x.y)'), '<a href="https://x.y" rel="noopener"><strong>a</strong></a>');
   assert.equal(renderInline('snake_case_name stays'), 'snake_case_name stays');
+  assert.equal(renderMarkdown('**Role**, Lab\nSeptember 2023 – present\n\nNext'), '<p><strong>Role</strong>, Lab<br>\nSeptember 2023 – present</p>\n<p>Next</p>');
 });
 
 test('html template escapes by default', () => {

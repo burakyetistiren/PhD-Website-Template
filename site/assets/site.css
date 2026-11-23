@@ -501,6 +501,7 @@ img {
 .page-head,
 .filters,
 .empty,
+main > .prose,
 .demo-about > .prose {
   margin-left: var(--indent);
   max-width: var(--measure);

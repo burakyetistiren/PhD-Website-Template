@@ -515,7 +515,7 @@ ${demoWidget(demo, ctx, { showTitle: false })}
 }
 
 function customPage(content, ctx, page) {
-  const body = html`${pageHeader(page.title)}<div class="prose">${md(ctx, page.body, { headingOffset: 1 })}</div>`;
+  const body = html`${pageHeader(page.title)}<div class="prose">${md(ctx, page.body)}</div>`;
   return layout(content, ctx, { title: page.title, description: markdownToText(page.body).slice(0, 200), body, path: `/${page.slug}` });
 }
 

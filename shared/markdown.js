@@ -52,7 +52,9 @@ export function renderInline(text, opts = {}) {
   s = s.replace(/<(https?:\/\/[^\s<>]+)>/g, (_, url) => stash(`<a href="${escapeHtml(url)}" rel="noopener">${escapeHtml(url)}</a>`));
 
   s = emphasis(escapeHtml(s));
-  s = s.replace(/ {2,}\n|\\\n/g, '<br>\n');
+  // A line break inside a paragraph is a line break (as in GitHub comments): people type
+  // these in a text box and expect Enter to work. Blank lines still start new paragraphs.
+  s = s.replace(/(?: {2,}|\\)?\n/g, '<br>\n');
   for (let i = 0; i < 4 && s.includes('\u0000'); i++) s = s.replace(/\u0000(\d+)\u0000/g, (_, n) => slots[n]);
   return s;
 }
