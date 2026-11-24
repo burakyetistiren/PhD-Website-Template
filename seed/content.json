@@ -10,59 +10,148 @@
     "lab": "Programming Systems Lab",
     "labUrl": "https://example.edu/psl",
     "advisors": [
-      { "name": "Dana Ortiz", "url": "https://example.edu/~dortiz" }
+      {
+        "name": "Dana Ortiz",
+        "url": "https://example.edu/~dortiz"
+      }
     ],
     "tagline": "I build tools that help developers understand unfamiliar code and change it without fear.",
     "bio": "I'm a fourth-year PhD candidate working at the intersection of **program analysis** and **human-computer interaction**. My research asks what developers actually need to know before they change code they didn't write, and builds tools that answer those questions automatically.\n\nMy recent work infers types for JSON-heavy codebases, explains refactorings as executable diffs, and studies how developers read code during review. Most of my tools have a live demo on this site, so you can try them on your own code.\n\nBefore my PhD I spent two years as a software engineer working on build infrastructure. I'm on the job market for research positions starting in fall 2027.",
-    "interests": ["Program analysis", "Developer tools", "Type inference", "Code review", "Empirical software engineering"],
+    "interests": [
+      "Program analysis",
+      "Developer tools",
+      "Type inference",
+      "Code review",
+      "Empirical software engineering"
+    ],
     "email": "robin.park@example.edu",
     "location": "Room 4.12, Hopper Building",
     "cv": "/media/cv.pdf",
     "links": [
-      { "label": "GitHub", "url": "https://github.com/" },
-      { "label": "Google Scholar", "url": "https://scholar.google.com/" },
-      { "label": "ORCID", "url": "https://orcid.org/" },
-      { "label": "DBLP", "url": "https://dblp.org/" }
+      {
+        "label": "GitHub",
+        "url": "https://github.com/"
+      },
+      {
+        "label": "Google Scholar",
+        "url": "https://scholar.google.com/"
+      },
+      {
+        "label": "ORCID",
+        "url": "https://orcid.org/"
+      },
+      {
+        "label": "DBLP",
+        "url": "https://dblp.org/"
+      }
     ],
-    "highlightNames": ["R. Park", "Robin Park"]
+    "highlightNames": [
+      "R. Park",
+      "Robin Park"
+    ]
   },
   "settings": {
     "siteTitle": "Robin Park",
     "description": "Robin Park is a PhD candidate at Northfield University building developer tools for understanding and changing unfamiliar code.",
-    "accent": "#2346d8",
+    "siteTheme": "paper",
     "theme": "auto",
     "webFonts": true,
+    "animation": "rise",
+    "pageTransitions": true,
     "heroDemo": "shapeshift",
     "homeSections": [
-      { "section": "about" },
-      { "section": "news", "limit": 4 },
-      { "section": "publications", "title": "Selected publications", "limit": 6 },
-      { "section": "demos", "title": "Try my tools" },
-      { "section": "projects", "limit": 3 },
-      { "section": "teaching" }
+      {
+        "section": "about"
+      },
+      {
+        "section": "news",
+        "limit": 4
+      },
+      {
+        "section": "publications",
+        "title": "Selected publications",
+        "limit": 6
+      },
+      {
+        "section": "demos",
+        "title": "Try my tools"
+      },
+      {
+        "section": "projects",
+        "limit": 3
+      },
+      {
+        "section": "teaching"
+      }
     ],
     "nav": [
-      { "label": "Publications", "url": "/publications" },
-      { "label": "Demos", "url": "/demos" },
-      { "label": "Projects", "url": "/projects" },
-      { "label": "Talks", "url": "/talks" },
-      { "label": "Contact", "url": "/contact" },
-      { "label": "CV", "url": "/cv" }
+      {
+        "label": "Publications",
+        "url": "/publications"
+      },
+      {
+        "label": "Demos",
+        "url": "/demos"
+      },
+      {
+        "label": "Projects",
+        "url": "/projects"
+      },
+      {
+        "label": "Experience",
+        "url": "/experience"
+      },
+      {
+        "label": "Talks",
+        "url": "/talks"
+      },
+      {
+        "label": "Contact",
+        "url": "/contact"
+      },
+      {
+        "label": "CV",
+        "url": "/cv"
+      }
     ],
     "footer": "Robin Park, Programming Systems Lab, Northfield University. Content is © the author; the tools are open source."
   },
   "news": [
-    { "id": "n1", "date": "2026-10-02", "text": "**Shapeshift** received a Distinguished Paper Award at FSE 2026. You can [try it in your browser](/demos/shapeshift)." },
-    { "id": "n2", "date": "2026-07-15", "text": "Passed my thesis proposal: *Tools for Changing Code You Didn't Write*." },
-    { "id": "n3", "date": "2026-05-20", "text": "Gave an invited talk on executable diffs at the Developer Experience Lab at ETH Zürich." },
-    { "id": "n4", "date": "2026-02-01", "text": "Our study of code review questions was accepted to CHI 2026." },
-    { "id": "n5", "date": "2025-09-01", "text": "Started a summer internship with the Developer Productivity team at a large software company." }
+    {
+      "id": "n1",
+      "date": "2026-10-02",
+      "text": "**Shapeshift** received a Distinguished Paper Award at FSE 2026. You can [try it in your browser](/demos/shapeshift)."
+    },
+    {
+      "id": "n2",
+      "date": "2026-07-15",
+      "text": "Passed my thesis proposal: *Tools for Changing Code You Didn't Write*."
+    },
+    {
+      "id": "n3",
+      "date": "2026-05-20",
+      "text": "Gave an invited talk on executable diffs at the Developer Experience Lab at ETH Zürich."
+    },
+    {
+      "id": "n4",
+      "date": "2026-02-01",
+      "text": "Our study of code review questions was accepted to CHI 2026."
+    },
+    {
+      "id": "n5",
+      "date": "2025-09-01",
+      "text": "Started a summer internship with the Developer Productivity team at a large software company."
+    }
   ],
   "publications": [
     {
       "id": "p1",
       "title": "Shapeshift: Lightweight Type Inference for JSON-Heavy Codebases",
-      "authors": ["Robin Park", "Mei Tanaka", "Dana Ortiz"],
+      "authors": [
+        "Robin Park",
+        "Mei Tanaka",
+        "Dana Ortiz"
+      ],
       "venue": "ACM International Conference on the Foundations of Software Engineering (FSE 2026)",
       "year": 2026,
       "type": "conference",
@@ -77,7 +166,11 @@
     {
       "id": "p2",
       "title": "What Do Developers Ask When Reviewing Unfamiliar Code? A Study of 1,200 Review Comments",
-      "authors": ["Amara Okafor", "R. Park", "Dana Ortiz"],
+      "authors": [
+        "Amara Okafor",
+        "R. Park",
+        "Dana Ortiz"
+      ],
       "venue": "ACM CHI Conference on Human Factors in Computing Systems (CHI 2026)",
       "year": 2026,
       "type": "conference",
@@ -89,7 +182,10 @@
     {
       "id": "p3",
       "title": "Tidy: Teaching Linters to Explain Themselves",
-      "authors": ["Robin Park", "Dana Ortiz"],
+      "authors": [
+        "Robin Park",
+        "Dana Ortiz"
+      ],
       "venue": "IEEE/ACM International Conference on Software Engineering, Tool Demonstrations Track (ICSE 2025 Demo)",
       "year": 2025,
       "type": "poster",
@@ -101,12 +197,87 @@
     {
       "id": "p4",
       "title": "Explaining Refactorings with Executable Diffs",
-      "authors": ["Robin Park", "Jonas Weber", "Mei Tanaka", "Dana Ortiz"],
+      "authors": [
+        "Robin Park",
+        "Jonas Weber",
+        "Mei Tanaka",
+        "Dana Ortiz"
+      ],
       "venue": "arXiv preprint",
       "year": 2025,
       "type": "preprint",
       "status": "Under review",
       "arxiv": "2511.00001"
+    }
+  ],
+  "experience": [
+    {
+      "id": "e1",
+      "title": "Ph.D. candidate in Computer Science",
+      "organization": "Northfield University",
+      "organizationUrl": "https://example.edu",
+      "kind": "education",
+      "start": "2023-09",
+      "current": true,
+      "location": "Northfield",
+      "badge": "NU",
+      "description": "Advised by Dana Ortiz in the Programming Systems Lab."
+    },
+    {
+      "id": "e2",
+      "title": "Distinguished Paper Award",
+      "organization": "FSE 2026",
+      "kind": "award",
+      "start": "2026-07",
+      "badge": "FSE",
+      "description": "For *Shapeshift: Lightweight Type Inference for JSON-Heavy Codebases*."
+    },
+    {
+      "id": "e3",
+      "title": "Research Intern, Developer Productivity",
+      "organization": "Halcyon Software",
+      "kind": "industry",
+      "start": "2025-06",
+      "end": "2025-09",
+      "location": "Seattle, WA",
+      "description": "Prototyped a code review assistant that explains the impact of a change before reviewers read the diff. Evaluated it with 40 engineers."
+    },
+    {
+      "id": "e4",
+      "title": "Artifact Evaluation Committee",
+      "organization": "OOPSLA 2025",
+      "kind": "service",
+      "start": "2025-04",
+      "end": "2025-06",
+      "badge": "OOP"
+    },
+    {
+      "id": "e5",
+      "title": "Head teaching assistant, CS 342: Compilers",
+      "organization": "Northfield University",
+      "kind": "teaching",
+      "start": "2025-09",
+      "end": "2025-12",
+      "badge": "NU"
+    },
+    {
+      "id": "e6",
+      "title": "Software Engineer, Build Infrastructure",
+      "organization": "Lumen Data",
+      "kind": "industry",
+      "start": "2021-07",
+      "end": "2023-08",
+      "location": "Boston, MA",
+      "description": "Cut median CI time from 38 to 11 minutes by caching build graphs across branches. Maintained the internal Bazel rules used by 300 engineers."
+    },
+    {
+      "id": "e7",
+      "title": "B.S. in Computer Science",
+      "organization": "Westbrook College",
+      "kind": "education",
+      "start": "2017-09",
+      "end": "2021-06",
+      "description": "Graduated with honors. Senior thesis on incremental parsing."
     }
   ],
   "projects": [
@@ -118,7 +289,10 @@
       "featured": true,
       "repo": "https://github.com/",
       "demo": "shapeshift",
-      "tags": ["TypeScript", "Type inference"],
+      "tags": [
+        "TypeScript",
+        "Type inference"
+      ],
       "description": "Shapeshift started as a weekend script and became the core of my FSE 2026 paper. The browser demo runs the inference half entirely client-side."
     },
     {
@@ -129,7 +303,11 @@
       "featured": true,
       "repo": "https://github.com/",
       "demo": "tidylint",
-      "tags": ["Python", "Linting", "Static analysis"]
+      "tags": [
+        "Python",
+        "Linting",
+        "Static analysis"
+      ]
     },
     {
       "id": "pr3",
@@ -137,7 +315,10 @@
       "tagline": "Replays a refactoring step by step so reviewers can check each move.",
       "status": "active",
       "repo": "https://github.com/",
-      "tags": ["Refactoring", "Code review"]
+      "tags": [
+        "Refactoring",
+        "Code review"
+      ]
     }
   ],
   "demos": [
@@ -151,7 +332,10 @@
       "isolate": true,
       "height": 520,
       "repo": "https://github.com/",
-      "tags": ["TypeScript", "JSON"],
+      "tags": [
+        "TypeScript",
+        "JSON"
+      ],
       "description": "This is the inference engine from **Shapeshift** compiled for the browser. Nothing you paste leaves your machine.\n\n### How it works\n\nShapeshift merges the shapes of every value it sees: two objects with different keys become one type with optional fields, and mixed arrays become unions. Try the *Union* example to see it merge records."
     },
     {
@@ -184,23 +368,70 @@
         }
       ],
       "presets": [
-        { "label": "Default rules", "args": "" },
-        { "label": "Strict (79-column lines)", "args": "--strict" },
-        { "label": "JSON output", "args": "--format json" }
+        {
+          "label": "Default rules",
+          "args": ""
+        },
+        {
+          "label": "Strict (79-column lines)",
+          "args": "--strict"
+        },
+        {
+          "label": "JSON output",
+          "args": "--format json"
+        }
       ],
       "repo": "https://github.com/",
-      "tags": ["Python", "Static analysis"],
+      "tags": [
+        "Python",
+        "Static analysis"
+      ],
       "description": "Each run happens in a fresh, locked-down container: no network, a read-only filesystem, 128 MB of memory, and a 10-second limit.\n\nThe container image is built from `examples/linter-demo` in this site's repository. Build it on the server with:\n\n```\ndocker build -t phd-site-example-linter examples/linter-demo\n```"
     }
   ],
   "talks": [
-    { "id": "t1", "title": "Executable Diffs: Reviewing Refactorings One Step at a Time", "event": "Developer Experience Lab, ETH Zürich", "date": "2026-05-20", "location": "Zürich", "kind": "invited", "slides": "/media/cv.pdf" },
-    { "id": "t2", "title": "Shapeshift: Types from JSON", "event": "FSE 2026", "date": "2026-07-08", "location": "Lisbon", "kind": "talk", "video": "https://www.youtube.com/" },
-    { "id": "t3", "title": "Tidy: Teaching Linters to Explain Themselves", "event": "ICSE 2025 Tool Demonstrations", "date": "2025-04-30", "location": "Ottawa", "kind": "demo" }
+    {
+      "id": "t1",
+      "title": "Executable Diffs: Reviewing Refactorings One Step at a Time",
+      "event": "Developer Experience Lab, ETH Zürich",
+      "date": "2026-05-20",
+      "location": "Zürich",
+      "kind": "invited",
+      "slides": "/media/cv.pdf"
+    },
+    {
+      "id": "t2",
+      "title": "Shapeshift: Types from JSON",
+      "event": "FSE 2026",
+      "date": "2026-07-08",
+      "location": "Lisbon",
+      "kind": "talk",
+      "video": "https://www.youtube.com/"
+    },
+    {
+      "id": "t3",
+      "title": "Tidy: Teaching Linters to Explain Themselves",
+      "event": "ICSE 2025 Tool Demonstrations",
+      "date": "2025-04-30",
+      "location": "Ottawa",
+      "kind": "demo"
+    }
   ],
   "teaching": [
-    { "id": "c1", "course": "CS 342: Compilers", "role": "Head teaching assistant", "term": "Fall 2025", "institution": "Northfield University" },
-    { "id": "c2", "course": "CS 210: Software Engineering", "role": "Teaching assistant", "term": "Spring 2024", "institution": "Northfield University" }
+    {
+      "id": "c1",
+      "course": "CS 342: Compilers",
+      "role": "Head teaching assistant",
+      "term": "Fall 2025",
+      "institution": "Northfield University"
+    },
+    {
+      "id": "c2",
+      "course": "CS 210: Software Engineering",
+      "role": "Teaching assistant",
+      "term": "Spring 2024",
+      "institution": "Northfield University"
+    }
   ],
   "pages": [
     {
@@ -208,6 +439,13 @@
       "title": "Contact",
       "slug": "contact",
       "body": "The best way to reach me is email: [robin.park@example.edu](mailto:robin.park@example.edu).\n\n## Prospective students\n\nIf you're an undergraduate at Northfield interested in developer tools research, I mentor one or two students each year through the lab's research program. Send me a short note about a tool you wish existed.\n\n## Office\n\nRoom 4.12, Hopper Building. Office hours are Tuesdays 2–4 pm during the semester."
+    },
+    {
+      "id": "pg2",
+      "title": "Experience",
+      "slug": "experience",
+      "timeline": "top",
+      "body": "## Skills\n\n- **Languages:** TypeScript, Python, Rust, OCaml\n- **Program analysis:** CodeQL, Soufflé, tree-sitter\n- **Research methods:** controlled user studies, qualitative coding"
     }
   ]
 }

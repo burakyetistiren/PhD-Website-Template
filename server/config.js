@@ -36,7 +36,7 @@ export function loadConfig(env = process.env) {
     runMaxConcurrent: Math.max(1, int(env.RUN_MAX_CONCURRENT, 2)),
     runRateLimit: Math.max(1, int(env.RUN_RATE_LIMIT, 30)),
     runMaxInputBytes: Math.max(1, int(env.RUN_MAX_INPUT_KB, 100)) * 1024,
-    maxUploadBytes: Math.max(1, int(env.MAX_UPLOAD_MB, 50)) * 1024 * 1024,
+    maxUploadBytes: Math.max(1, int(env.MAX_UPLOAD_MB, 1024)) * 1024 * 1024,
     corsOrigins: env.CORS_ORIGINS || '*',
     quiet: env.QUIET === 'true',
   };

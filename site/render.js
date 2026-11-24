@@ -8,6 +8,13 @@
 import { html, raw, jsonForScript } from './html.js';
 import { renderMarkdown, renderInline, markdownToText, safeUrl, escapeHtml } from '../shared/markdown.js';
 import { SINGLETONS, withDefaults } from '../server/schema.js';
+import { THEMES, resolveTheme, themeFontsUrl } from './themes.js';
+
+// Values of Site settings → Animations that animate (everything except "none").
+const MOTION_STYLES = new Set(['fade', 'rise', 'slide', 'focus']);
+// Cross-document view transitions: both pages must opt in. The header keeps its own
+// transition name so it stays put while the rest of the page cross-fades.
+const PAGE_TRANSITION_CSS = '@media (prefers-reduced-motion: no-preference){@view-transition{navigation:auto}.masthead{view-transition-name:masthead}}';
 
 const DEFAULT_SECTIONS = [
   { section: 'about' },
@@ -30,6 +37,15 @@ const DEMO_KIND_LABEL = {
   playground: 'Runs on this server',
   embed: 'Hosted elsewhere',
 };
+const EXPERIENCE_KIND_LABEL = {
+  education: 'Education',
+  research: 'Research',
+  industry: 'Industry',
+  teaching: 'Teaching',
+  service: 'Service',
+  volunteering: 'Volunteering',
+  award: 'Awards',
+};
 const PUB_TYPE_LABEL = {
   conference: 'Conference',
   journal: 'Journal',
@@ -49,6 +65,11 @@ export function formatDate(iso, { day = true } = {}) {
   const month = MONTHS[Number(m[2]) - 1];
   return day && m[3] ? `${month} ${Number(m[3])}, ${m[1]}` : `${month} ${m[1]}`;
 }
+
+const formatMonth = (ym) => {
+  const m = String(ym || '').match(/^(\d{4})-(\d{2})$/);
+  return m ? `${MONTHS[Number(m[2]) - 1]} ${m[1]}` : '';
+};
 
 const byDateDesc = (a, b) => String(b.date || '').localeCompare(String(a.date || ''));
 
@@ -75,9 +96,23 @@ function initials(name) {
   return ((words[0]?.[0] || '') + (words.length > 1 ? words[words.length - 1][0] : '')).toUpperCase();
 }
 
+const HEX = /^#[0-9a-f]{6}$/i;
+
 export function faviconSvg(content) {
   const settings = withDefaults(SINGLETONS.settings.fields, content.settings);
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="${escapeHtml(settings.accent)}"/><text x="32" y="42" font-family="Helvetica, Arial, sans-serif" font-size="28" font-weight="700" text-anchor="middle" fill="#fff">${escapeHtml(initials(content.profile.name))}</text></svg>`;
+  const theme = THEMES[resolveTheme(settings.siteTheme)];
+  const bg = HEX.test(settings.accent || '') ? settings.accent : theme.favicon.bg;
+  const fg = HEX.test(settings.accent || '') ? '#ffffff' : theme.favicon.fg;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="${escapeHtml(bg)}"/><text x="32" y="42" font-family="Helvetica, Arial, sans-serif" font-size="28" font-weight="700" text-anchor="middle" fill="${escapeHtml(fg)}">${escapeHtml(initials(content.profile.name))}</text></svg>`;
+}
+
+/** A custom link color from Site settings overrides the theme's, lightened for dark mode. */
+function accentOverride(accent) {
+  if (!HEX.test(accent || '')) return '';
+  const dark = `color-mix(in oklab, ${accent} 55%, white)`;
+  return `:root{--accent:${accent}!important;--link:${accent}!important}`
+    + `:root[data-theme="dark"],:root[data-theme-pref="dark"]{--link:${dark}!important}`
+    + `@media (prefers-color-scheme:dark){:root[data-theme-pref="auto"]:not([data-theme]){--link:${dark}!important}}`;
 }
 
 function nameMatcher(profile) {
@@ -106,7 +141,10 @@ function layout(content, ctx, { title, description, body, path, wide = false, og
   const nav = settings.nav || [];
   const isCurrent = (url) => url === path || (url !== '/' && path.startsWith(url + '/'));
   const v = ctx.assetVersion ? `?v=${ctx.assetVersion}` : '';
-  const accent = /^#[0-9a-f]{6}$/i.test(settings.accent) ? settings.accent : '#2346d8';
+  const style = resolveTheme(settings.siteTheme, ctx.previewTheme);
+  const accentCss = accentOverride(settings.accent);
+  // Scroll animations: theme.js and site.js act on data-motion; site.css has the styles.
+  const motion = MOTION_STYLES.has(settings.animation) ? html` data-motion="${settings.animation}"` : '';
 
   const person = {
     '@context': 'https://schema.org',
@@ -124,7 +162,7 @@ function layout(content, ctx, { title, description, body, path, wide = false, og
   const footerUpdated = content.meta?.updatedAt ? html`<p class="foot-updated">Updated ${formatDate(content.meta.updatedAt.slice(0, 10))}</p>` : '';
 
   return html`<!doctype html>
-<html lang="en" data-theme-pref="${settings.theme}">
+<html lang="en" data-theme-pref="${settings.theme}" data-style="${style}"${motion}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -142,10 +180,12 @@ ${photo ? html`<meta property="og:image" content="${photo}">` : ''}
 ${settings.webFonts
     ? html`<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400..700&family=Fragment+Mono&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..650;1,8..60,400..500&display=swap">`
+<link rel="stylesheet" href="${themeFontsUrl(style)}">`
     : ''}
 <link rel="stylesheet" href="${href(ctx, '/assets/site.css')}${v}">
-<style>:root{--accent:${accent}}</style>
+<link rel="stylesheet" href="${href(ctx, '/assets/themes.css')}${v}">
+${accentCss ? html`<style>${raw(accentCss)}</style>` : ''}
+${settings.pageTransitions ? raw(`<style>${PAGE_TRANSITION_CSS}</style>`) : ''}
 <script src="${href(ctx, '/assets/theme.js')}${v}"></script>
 <script type="application/ld+json">${jsonForScript(person)}</script>
 </head>
@@ -514,9 +554,66 @@ ${demoWidget(demo, ctx, { showTitle: false })}
   return layout(content, ctx, { title: demo.title, description: demo.summary, body, path: `/demos/${demo.slug}`, wide: true });
 }
 
+// ── Experience timeline ───────────────────────────────────────────────────
+// A vertical line with one circle per entry (the organization's logo, or its initials).
+// Entries alternate left and right on wide screens; the dates sit on the opposite side.
+
+function experienceWhen(e) {
+  const start = formatMonth(e.start);
+  if (e.current) return `${start} – Present`;
+  if (!e.end || e.end === e.start) return start;
+  return `${start} – ${formatMonth(e.end)}`;
+}
+
+const BADGE_SKIP = new Set(['of', 'the', 'and', 'for', 'at', 'in', 'inc', 'inc.', 'ltd', 'llc', 'gmbh']);
+function badgeFor(e) {
+  if (e.badge) return e.badge;
+  const acronym = String(e.organization || '').match(/\(([A-Z0-9]{2,6})\)/);
+  if (acronym) return acronym[1];
+  const words = String(e.organization || '').split(/[\s,/-]+/).filter((w) => w && !BADGE_SKIP.has(w.toLowerCase()));
+  return words.slice(0, 3).map((w) => w[0].toUpperCase()).join('') || '•';
+}
+
+export function experienceTimeline(ctx, entries) {
+  // Newest first; entries that start in the same month keep their saved order.
+  const sorted = [...entries].sort((a, b) => String(b.start || '').localeCompare(String(a.start || '')));
+  const order = Object.keys(EXPERIENCE_KIND_LABEL);
+  const kinds = [...new Set(sorted.map((e) => e.kind || 'research'))].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+  const filters = kinds.length > 1
+    ? html`<div class="filters tl-filters" data-tl-filters hidden role="group" aria-label="Show experience of kind">
+  <button type="button" aria-pressed="true" data-filter="">All</button>
+  ${kinds.map((k) => html`<button type="button" aria-pressed="false" data-filter="${k}">${EXPERIENCE_KIND_LABEL[k] || k}</button>`)}
+</div>`
+    : '';
+  return html`<section class="timeline" data-timeline aria-label="Experience timeline">
+${filters}
+<ol class="tl">${sorted.map((e, i) => {
+    const badge = badgeFor(e);
+    const node = e.image
+      ? html`<img src="${href(ctx, e.image)}" alt="" loading="lazy">`
+      : html`<span class="tl-badge tl-badge--${Math.min(badge.length, 5)}">${badge}</span>`;
+    const nodeClass = e.image ? `tl-node tl-node--${e.imageFit === 'fit' ? 'fit' : 'fill'}` : 'tl-node';
+    const nodeBg = e.image && /^#[0-9a-f]{6}$/i.test(e.imageBackground || '') ? html` style="--node-bg: ${e.imageBackground}"` : '';
+    const cls = ['tl-item', i % 2 ? 'tl-right' : 'tl-left', e.current ? 'tl-current' : '', e.description ? '' : 'tl-compact'].filter(Boolean).join(' ');
+    return html`<li class="${cls}" data-kind="${e.kind || 'research'}">
+  <div class="${nodeClass}"${nodeBg} aria-hidden="true">${node}</div>
+  <p class="tl-when">${experienceWhen(e)}</p>
+  <div class="tl-card">
+    <h3 class="tl-title">${e.title}</h3>
+    <p class="tl-org">${a(ctx, e.organizationUrl, e.organization)}${e.location ? html`, ${e.location}` : ''}</p>
+    ${e.description ? html`<div class="tl-desc">${md(ctx, e.description, { headingOffset: 3 })}</div>` : ''}
+  </div>
+</li>`;
+  })}</ol>
+</section>`;
+}
+
 function customPage(content, ctx, page) {
-  const body = html`${pageHeader(page.title)}<div class="prose">${md(ctx, page.body)}</div>`;
-  return layout(content, ctx, { title: page.title, description: markdownToText(page.body).slice(0, 200), body, path: `/${page.slug}` });
+  const where = page.timeline || 'none';
+  const tl = where !== 'none' && content.experience?.length ? experienceTimeline(ctx, content.experience) : '';
+  const text = page.body ? html`<div class="prose">${md(ctx, page.body)}</div>` : '';
+  const body = html`${pageHeader(page.title)}${where === 'top' ? tl : ''}${text}${where === 'bottom' ? tl : ''}`;
+  return layout(content, ctx, { title: page.title, description: markdownToText(page.body || '').slice(0, 200), body, path: `/${page.slug}`, wide: Boolean(tl) });
 }
 
 export function notFoundPage(content, ctx) {

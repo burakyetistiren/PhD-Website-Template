@@ -300,6 +300,8 @@ function createWidget(field, value, id, onChange, ctx) {
       return inputWidget(field, value, id, onChange, 'email');
     case 'date':
       return inputWidget(field, value, id, onChange, 'date');
+    case 'month':
+      return inputWidget({ ...field, placeholder: 'YYYY-MM' }, value, id, onChange, 'month');
     case 'number':
       return inputWidget(field, value, id, onChange, 'number');
     case 'text':
@@ -327,6 +329,30 @@ function createWidget(field, value, id, onChange, ctx) {
   }
 }
 
+/**
+ * A miniature page (a heading and three rows) that plays the animation picked in `select`,
+ * using the same option values as the site (see the Animations section of site/assets/site.css).
+ * It plays whenever the choice changes, and on Replay.
+ */
+function motionPreview(select) {
+  const parts = [
+    el('span', { class: 'mp-part mp-heading' }),
+    ...[1, 2, 3].map(() => el('span', { class: 'mp-part mp-row' }, el('span', { class: 'mp-date' }), el('span', { class: 'mp-text' }))),
+  ];
+  const stage = el('div', { class: 'mp-stage is-in', 'aria-hidden': 'true', dataset: { motion: select.value || 'none' } }, parts);
+  const play = () => {
+    stage.dataset.motion = select.value || 'none';
+    stage.classList.remove('is-in');
+    stage.classList.add('mp-reset'); // jump back to the hidden state without animating
+    void stage.offsetWidth;
+    stage.classList.remove('mp-reset');
+    stage.classList.add('is-in');
+  };
+  select.addEventListener('change', play);
+  const replay = el('button', { type: 'button', class: 'btn btn-small btn-ghost', onclick: play }, 'Replay');
+  return el('div', { class: 'motion-preview' }, stage, replay);
+}
+
 // ── Form ───────────────────────────────────────────────────────────────────
 
 export function buildForm(fields, value = {}, ctx = {}, { compact = false } = {}) {
@@ -350,6 +376,7 @@ export function buildForm(fields, value = {}, ctx = {}, { compact = false } = {}
       wrap.append(el(LabelTag, { class: 'field-label', for: LabelTag === 'label' ? id : undefined, id: `${id}-label` }, field.label, field.required ? el('span', { class: 'req', 'aria-hidden': 'true' }, ' *') : ''));
     }
     wrap.append(widget.control);
+    if (field.preview === 'motion' && field.type === 'select') wrap.append(motionPreview(widget.control));
     if (field.help) wrap.append(el('p', { class: 'help', id: `${id}-help`, html: renderInline(field.help) }));
     wrap.append(error);
     const input = wrap.querySelector('input, textarea, select');

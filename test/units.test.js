@@ -1,11 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { renderMarkdown, renderInline, safeUrl } from '../shared/markdown.js';
-import { validateFields, validateItem, publicContent, normalizeContent, rewriteRefs, COLLECTIONS } from '../server/schema.js';
+import { validateFields, validateItem, publicContent, normalizeContent, rewriteRefs, COLLECTIONS, SINGLETONS } from '../server/schema.js';
 import { parseBibtex, entryToPublication, cleanLatex, formatAuthor } from '../server/bibtex.js';
 import { splitArgs, buildDockerArgs } from '../server/runner.js';
 import { sanitizeMediaName, sanitizeDemoPath } from '../server/api.js';
 import { html, raw } from '../site/html.js';
+import { parseRange, formatBytes } from '../server/http.js';
+import { loadConfig } from '../server/config.js';
 
 test('markdown escapes raw HTML and unsafe links', () => {
   const out = renderMarkdown('<script>alert(1)</script> [x](javascript:alert(1)) [y](JaVaScRiPt:alert(1)) ![i](data:image/png;base64,AA)');
@@ -55,6 +57,52 @@ test('schema validation: required, defaults, unsafe urls, nested lists, unknown 
   assert.equal(ok.value.title, 'Paper');
   assert.deepEqual(ok.value.authors, ['A', 'B']);
   assert.equal(ok.value.year, 2025);
+});
+
+test('experience: month validation and the two-sided timeline', async () => {
+  assert.match(validateItem('experience', { title: 'T', organization: 'O', start: '2023-13' }).errors.start, /YYYY-MM/);
+  const ok = validateItem('experience', { title: 'Intern', organization: 'Acme Web Services', start: '2025-06', end: '2025-09' });
+  assert.deepEqual(ok.errors, {});
+  const { experienceTimeline } = await import('../site/render.js');
+  const out = String(experienceTimeline({ base: '' }, [
+    { title: 'Older', organization: 'Acme Web Services', kind: 'industry', start: '2025-06', end: '2025-09' },
+    { title: 'Newer', organization: 'Northfield University (NU)', kind: 'education', start: '2026-01', current: true, description: 'Hi' },
+    { title: 'Award', organization: 'ACM', kind: 'award', start: '2024-10', image: '/media/acm.png' },
+    { title: 'Wide', organization: 'X', kind: 'service', start: '2020-01', image: '/media/x.svg', imageFit: 'fit', imageBackground: '#1f4e79' },
+    { title: 'Bad colour', organization: 'Y', kind: 'service', start: '2019-01', image: '/media/y.png', imageBackground: 'red;}<x>' },
+  ]));
+  assert.match(out, /class="tl-node tl-node--fill" aria-hidden/, 'images fill the circle by default');
+  assert.match(out, /class="tl-node tl-node--fit" style="--node-bg: #1f4e79"/);
+  assert.ok(!out.includes('red;}'), 'only hex circle colours are used');
+  const order = ['Newer', 'Older', 'Award'].map((t) => out.indexOf(`>${t}<`));
+  assert.deepEqual([...order].sort((a, b) => a - b), order, 'newest first');
+  assert.match(out, /class="tl-item tl-left tl-current"/);
+  assert.match(out, /class="tl-item tl-right tl-compact"/);
+  assert.match(out, /Jan 2026 – Present/);
+  assert.match(out, /Jun 2025 – Sep 2025/);
+  assert.match(out, />NU</, 'acronym in parentheses becomes the badge');
+  assert.match(out, />AWS</, 'initials otherwise');
+  assert.match(out, /<img src="\/media\/acm\.png"/);
+  assert.match(out, /data-filter="award">Awards</);
+});
+
+test('themes: setting, preview override, fonts and custom link color', async () => {
+  const { renderRoute } = await import('../site/render.js');
+  const { THEMES } = await import('../site/themes.js');
+  const base = normalizeContent({ profile: { name: 'Ada Lovelace' }, settings: { siteTheme: 'riso' } });
+  const riso = renderRoute('/', base, {}).html;
+  assert.match(riso, /<html lang="en" data-theme-pref="auto" data-style="riso"[ >]/);
+  assert.match(riso, /family=Young\+Serif/);
+  assert.match(riso, /\/assets\/themes\.css/);
+  assert.ok(!riso.includes('--accent:'), 'no link-color override unless one is set');
+  assert.match(renderRoute('/', base, { previewTheme: 'midnight' }).html, /data-style="midnight"/);
+  assert.match(renderRoute('/', base, { previewTheme: '"><script>' }).html, /data-style="riso"/, 'unknown previews are ignored');
+  assert.match(renderRoute('/', normalizeContent({ profile: { name: 'A' } }), {}).html, /data-style="paper"/);
+  const custom = normalizeContent({ profile: { name: 'A' }, settings: { siteTheme: 'swiss', accent: '#118833' } });
+  assert.match(renderRoute('/', custom, {}).html, /--accent:#118833!important/);
+  const themeField = SINGLETONS.settings.fields.find((f) => f.key === 'siteTheme');
+  assert.deepEqual(themeField.options.map((o) => o.value), Object.keys(THEMES));
+  assert.equal(validateFields(SINGLETONS.settings.fields, { siteTheme: 'neon' }).errors.siteTheme, 'Pick one of the listed options');
 });
 
 test('schema: unique slugs, reserved page slugs, private fields', () => {
@@ -137,4 +185,29 @@ test('upload names and demo paths are sanitized', () => {
   assert.equal(sanitizeDemoPath('../secret'), null);
   assert.equal(sanitizeDemoPath('.env'), null);
   assert.equal(sanitizeDemoPath('a/./b'), null);
+});
+
+test('range header parsing', () => {
+  assert.deepEqual(parseRange('bytes=0-99', 1000), { start: 0, end: 99 });
+  assert.deepEqual(parseRange('bytes=900-', 1000), { start: 900, end: 999 });
+  assert.deepEqual(parseRange('bytes=900-5000', 1000), { start: 900, end: 999 });
+  assert.deepEqual(parseRange('bytes=-100', 1000), { start: 900, end: 999 });
+  assert.deepEqual(parseRange('bytes=-5000', 1000), { start: 0, end: 999 });
+  assert.deepEqual(parseRange('bytes=0-1', 1000), { start: 0, end: 1 });
+  assert.equal(parseRange('bytes=1000-', 1000), 'unsatisfiable');
+  assert.equal(parseRange('bytes=-0', 1000), 'unsatisfiable');
+  assert.equal(parseRange('bytes=0-', 0), 'unsatisfiable');
+  assert.equal(parseRange(undefined, 1000), null);
+  assert.equal(parseRange('bytes=5-2', 1000), null);
+  assert.equal(parseRange('bytes=0-1,5-6', 1000), null);
+  assert.equal(parseRange('items=0-1', 1000), null);
+  assert.equal(parseRange('bytes=-', 1000), null);
+});
+
+test('uploads default to a 1 GB limit', () => {
+  assert.equal(loadConfig({}).maxUploadBytes, 1024 * 1024 * 1024);
+  assert.equal(loadConfig({ MAX_UPLOAD_MB: '200' }).maxUploadBytes, 200 * 1024 * 1024);
+  assert.equal(formatBytes(1024 * 1024 * 1024), '1 GB');
+  assert.equal(formatBytes(1.5 * 1024 * 1024 * 1024), '1.5 GB');
+  assert.equal(formatBytes(50 * 1024 * 1024), '50 MB');
 });

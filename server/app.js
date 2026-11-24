@@ -57,7 +57,10 @@ export async function createApp(config, { log = console.log } = {}) {
   registerApi(router, { store, auth, runner, config });
 
   const siteUrl = (req) => config.publicUrl || `${config.trustProxy && req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http'}://${req.headers.host || 'localhost'}`;
-  const renderCtx = (req) => ({ base: '', apiBase: '', siteUrl: config.publicUrl, canRun: true, assetVersion, req });
+  const renderCtx = (req, url) => ({
+    base: '', apiBase: '', siteUrl: config.publicUrl, canRun: true, assetVersion, req,
+    previewTheme: url?.searchParams.get('theme') || '', // ?theme=riso previews a theme without saving it
+  });
 
   const serveFrom = (root, opts) => async (ctx) => {
     const file = safeJoin(root, ctx.params.wild || '');
@@ -114,7 +117,7 @@ export async function createApp(config, { log = console.log } = {}) {
   router.get('/feed.xml', (ctx) => sendText(ctx.res, 200, renderFeed(store.read(), siteUrl(ctx.req)), 'application/rss+xml; charset=utf-8'));
 
   const renderPage = (ctx) => {
-    const result = renderRoute(ctx.url.pathname, store.read(), renderCtx(ctx.req));
+    const result = renderRoute(ctx.url.pathname, store.read(), renderCtx(ctx.req, ctx.url));
     if (!result) throw new HttpError(404, 'Not found');
     if (result.redirect) return redirect(ctx.res, result.redirect, result.status);
     sendText(ctx.res, result.status, result.html, 'text/html; charset=utf-8', {
@@ -186,7 +189,7 @@ export async function createApp(config, { log = console.log } = {}) {
         return sendJson(res, status, body, headers);
       }
       if (status === 404 && req.method !== 'POST') {
-        return sendText(res, 404, String(notFoundPage(store.read(), renderCtx(req))), 'text/html; charset=utf-8', { 'Content-Security-Policy': SITE_CSP });
+        return sendText(res, 404, String(notFoundPage(store.read(), renderCtx(req, url))), 'text/html; charset=utf-8', { 'Content-Security-Policy': SITE_CSP });
       }
       return sendText(res, status, status === 500 ? 'Something went wrong on the server.' : err.message);
     }
@@ -195,6 +198,9 @@ export async function createApp(config, { log = console.log } = {}) {
   const server = http.createServer((req, res) => {
     handle(req, res);
   });
+  // Node drops any request that takes over 5 minutes, which would cut off a large video
+  // upload on a home connection. Headers must still arrive within a minute.
+  server.requestTimeout = 60 * 60 * 1000;
 
   return {
     server,

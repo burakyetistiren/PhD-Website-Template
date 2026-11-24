@@ -55,7 +55,8 @@ function itemTitle(def, item) {
 function itemMeta(name, def, item) {
   if (name === 'demos') return { static: 'Runs in the browser', playground: 'Playground', embed: 'Embedded' }[item.kind] || '';
   if (name === 'publications') return [item.venue, item.year].filter(Boolean).join(', ');
-  if (name === 'pages') return `/${item.slug}`;
+  if (name === 'pages') return `/${item.slug}${item.timeline && item.timeline !== 'none' ? ', with timeline' : ''}`;
+  if (name === 'experience') return [item.organization, `${item.start || ''}${item.current ? ' to present' : item.end && item.end !== item.start ? ` to ${item.end}` : ''}`].filter(Boolean).join(', ');
   return plain(item[def.metaField]);
 }
 
@@ -117,13 +118,7 @@ const NAV = [
   { href: '#/profile', label: 'Profile' },
   { href: '#/settings', label: 'Site settings' },
   { group: 'Content' },
-  { collection: 'news' },
-  { collection: 'publications' },
-  { collection: 'demos' },
-  { collection: 'projects' },
-  { collection: 'talks' },
-  { collection: 'teaching' },
-  { collection: 'pages' },
+  { collections: true }, // every collection in the schema, in schema order
   { group: 'Files and safety' },
   { href: '#/media', label: 'Media library' },
   { href: '#/history', label: 'History and backups' },
@@ -149,7 +144,8 @@ function renderNav() {
   document.getElementById('brand-name').textContent = state.content.profile.name || 'Your site';
   const current = location.hash || '#/';
   const list = el('ul', {});
-  for (const item of NAV) {
+  const items = NAV.flatMap((item) => (item.collections ? Object.keys(state.schema.collections).map((collection) => ({ collection })) : [item]));
+  for (const item of items) {
     if (item.group) {
       list.append(el('li', { class: 'nav-group' }, item.group));
       continue;
@@ -288,7 +284,15 @@ async function singletonView(view, name) {
     }
   });
   setDirtyCheck(form.isDirty);
-  fill(view, header(def.label, def.description, el('a', { class: 'btn', href: '/', target: '_blank', rel: 'noopener' }, 'View site')), formEl);
+  const themeField = name === 'settings' && def.fields.find((f) => f.key === 'siteTheme');
+  const previews = themeField
+    ? el('section', { class: 'card' },
+      el('h2', {}, 'Preview themes'),
+      el('p', { class: 'muted' }, 'Opens your home page in a new tab with that theme. Nothing changes until you pick one under Theme below and save.'),
+      el('div', { class: 'row-inline' }, themeField.options.map((o) =>
+        el('a', { class: 'btn btn-small', href: `/?theme=${encodeURIComponent(o.value)}`, target: '_blank', rel: 'noopener' }, o.label.split(':')[0]))))
+    : null;
+  fill(view, header(def.label, def.description, el('a', { class: 'btn', href: '/', target: '_blank', rel: 'noopener' }, 'View site')), previews, formEl);
 }
 
 // ── Collections ────────────────────────────────────────────────────────────

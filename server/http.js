@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
@@ -124,6 +125,43 @@ export function readBody(req, limit) {
   });
 }
 
+/**
+ * Streams an upload into a new temporary file in `tmpDir`, so even a 1 GB file never sits in
+ * memory. Resolves to `{ tmp, size }`; the caller moves `tmp` into place or deletes it.
+ * Oversized or interrupted uploads are deleted here and reject with an HttpError.
+ */
+export async function receiveFile(req, tmpDir, limit) {
+  const tooLarge = () => new HttpError(413, `Upload is larger than the ${formatBytes(limit)} limit`);
+  if (Number(req.headers['content-length']) > limit) {
+    req.resume();
+    throw tooLarge();
+  }
+  await fsp.mkdir(tmpDir, { recursive: true });
+  const tmp = path.join(tmpDir, `${Date.now().toString(36)}-${crypto.randomBytes(6).toString('hex')}.tmp`);
+  return new Promise((resolve, reject) => {
+    const out = fs.createWriteStream(tmp, { flags: 'wx' });
+    let size = 0;
+    let failed = false;
+    const fail = (err) => {
+      if (failed) return;
+      failed = true;
+      req.unpipe(out);
+      req.resume(); // read and discard the rest, so the client still gets our error response
+      out.destroy();
+      fsp.rm(tmp, { force: true }).finally(() => reject(err));
+    };
+    req.on('data', (chunk) => {
+      size += chunk.length;
+      if (size > limit) fail(tooLarge());
+    });
+    req.on('error', () => fail(new HttpError(400, 'The upload was interrupted')));
+    req.on('close', () => !req.complete && fail(new HttpError(400, 'The upload was interrupted')));
+    out.on('error', fail);
+    out.on('close', () => !failed && resolve({ tmp, size }));
+    req.pipe(out);
+  });
+}
+
 export async function readJson(req, limit = 2 * 1024 * 1024) {
   const buf = await readBody(req, limit);
   if (!buf.length) return {};
@@ -183,21 +221,51 @@ export async function serveFile(req, res, filePath, { headers = {}, cacheControl
     res.end();
     return true;
   }
-  res.writeHead(200, {
-    'Content-Type': mimeType(filePath),
-    'Content-Length': stat.size,
-    'Last-Modified': stat.mtime.toUTCString(),
-    ...common,
-  });
+  const lastModified = stat.mtime.toUTCString();
+  // Byte ranges let browsers seek in videos and audio; Safari will not play an MP4 without them.
+  // If-Range asks for the range only while the file is unchanged, otherwise the whole file.
+  const ifRange = req.headers['if-range'];
+  const range = !ifRange || ifRange === etag || ifRange === lastModified ? parseRange(req.headers.range, stat.size) : null;
+  if (range === 'unsatisfiable') {
+    res.writeHead(416, { 'Content-Range': `bytes */${stat.size}`, 'Content-Length': 0, ...common });
+    res.end();
+    return true;
+  }
+  const head = { 'Content-Type': mimeType(filePath), 'Last-Modified': lastModified, 'Accept-Ranges': 'bytes', ...common };
+  if (range) {
+    res.writeHead(206, { ...head, 'Content-Range': `bytes ${range.start}-${range.end}/${stat.size}`, 'Content-Length': range.end - range.start + 1 });
+  } else {
+    res.writeHead(200, { ...head, 'Content-Length': stat.size });
+  }
   if (req.method === 'HEAD') res.end();
-  else fs.createReadStream(filePath).pipe(res);
+  else fs.createReadStream(filePath, range || undefined).pipe(res);
   return true;
+}
+
+/**
+ * Reads a `Range: bytes=…` header for a file of `size` bytes. Returns `{ start, end }` (inclusive),
+ * 'unsatisfiable' when the range starts past the end, or null to send the whole file
+ * (no header, a malformed one, or several ranges, which we don't serve).
+ */
+export function parseRange(header, size) {
+  const m = /^bytes=(\d*)-(\d*)$/.exec(String(header || '').trim());
+  if (!m || (m[1] === '' && m[2] === '')) return null;
+  if (m[1] === '') {
+    const suffix = Number(m[2]);
+    if (suffix === 0 || size === 0) return 'unsatisfiable';
+    return { start: Math.max(0, size - suffix), end: size - 1 };
+  }
+  const start = Number(m[1]);
+  if (m[2] !== '' && Number(m[2]) < start) return null;
+  if (start >= size) return 'unsatisfiable';
+  return { start, end: m[2] === '' ? size - 1 : Math.min(Number(m[2]), size - 1) };
 }
 
 export function formatBytes(n) {
   if (n < 1024) return `${n} B`;
   if (n < 1024 * 1024) return `${Math.round(n / 1024)} KB`;
-  return `${Math.round(n / 1024 / 1024)} MB`;
+  if (n < 1024 * 1024 * 1024) return `${Math.round(n / 1024 / 1024)} MB`;
+  return `${Math.round((n / 1024 / 1024 / 1024) * 10) / 10} GB`;
 }
 
 export function clientIp(req, trustProxy) {

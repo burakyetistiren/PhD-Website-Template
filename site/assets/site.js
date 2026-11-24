@@ -47,6 +47,63 @@ if (filters) {
   });
 }
 
+// Experience timeline filters. Visible entries re-alternate left and right.
+const timeline = document.querySelector('[data-timeline]');
+const tlFilters = timeline?.querySelector('[data-tl-filters]');
+if (tlFilters) {
+  tlFilters.hidden = false;
+  tlFilters.addEventListener('click', (event) => {
+    const button = event.target.closest('button[data-filter]');
+    if (!button) return;
+    const kind = button.dataset.filter;
+    for (const b of tlFilters.querySelectorAll('button')) b.setAttribute('aria-pressed', String(b === button));
+    let shown = 0;
+    for (const item of timeline.querySelectorAll('.tl-item')) {
+      const visible = !kind || item.dataset.kind === kind;
+      item.hidden = !visible;
+      if (!visible) continue;
+      item.classList.toggle('tl-left', shown % 2 === 0);
+      item.classList.toggle('tl-right', shown % 2 === 1);
+      shown++;
+    }
+  });
+}
+
+// Scroll animations (Site settings → Animations). theme.js hid <main> before first paint; here
+// each part of the page gets data-reveal (hidden, per the chosen style in site.css) and then
+// .is-in as it scrolls into view. Parts that enter together play one after another.
+const REVEAL_PARTS = [
+  'main > :not(.intro):not(.block):not(.rows):not(.timeline):not(.demo-about)',
+  '.intro > .portrait',
+  '.intro-text > *',
+  '.block > :not(.rows)',
+  '.demo-about > :not(.block)',
+  '.rows > .row',
+  '.timeline > .filters',
+  '.tl-item',
+].join(', ');
+
+if (document.documentElement.classList.contains('motion-ready')) {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      let n = 0; // entries arrive in document order
+      for (const { target, isIntersecting, boundingClientRect } of entries) {
+        if (isIntersecting) target.style.setProperty('--reveal-delay', `${Math.min(n++, 8) * 70}ms`);
+        else if (boundingClientRect.bottom > 0) continue; // still below the fold
+        // In view, already scrolled past (e.g. a reload halfway down), or not displayed.
+        target.classList.add('is-in');
+        observer.unobserve(target);
+      }
+    },
+    { rootMargin: '0px 0px -6% 0px' },
+  );
+  for (const part of document.querySelectorAll(REVEAL_PARTS)) {
+    part.setAttribute('data-reveal', '');
+    observer.observe(part);
+  }
+  document.documentElement.classList.add('motion-live');
+}
+
 // Playground demos
 for (const root of document.querySelectorAll('[data-playground]')) setupPlayground(root);
 

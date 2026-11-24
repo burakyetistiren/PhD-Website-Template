@@ -1054,6 +1054,89 @@ progress {
   }
 }
 
+/* Animation preview under Site settings → Animations. The hidden states mirror the
+   Animations section of site/assets/site.css, scaled down to fit. */
+.motion-preview {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.mp-stage {
+  display: grid;
+  gap: 0.55rem;
+  width: min(100%, 16rem);
+  padding: 0.875rem 1rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--sunken);
+  overflow: hidden;
+}
+
+.mp-part {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  transition: opacity 0.7s, transform 0.7s, filter 0.7s;
+  transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.mp-part:nth-child(2) { transition-delay: 70ms; }
+.mp-part:nth-child(3) { transition-delay: 140ms; }
+.mp-part:nth-child(4) { transition-delay: 210ms; }
+
+.mp-heading {
+  width: 45%;
+  height: 0.625rem;
+  margin-bottom: 0.2rem;
+  border-radius: 3px;
+  background: var(--ink-soft);
+}
+
+.mp-date {
+  flex: none;
+  width: 1.75rem;
+  height: 0.4rem;
+  border-radius: 2px;
+  background: var(--line-strong);
+}
+
+.mp-text {
+  width: 85%;
+  height: 0.4rem;
+  border-radius: 2px;
+  background: var(--muted);
+}
+
+.mp-row:nth-child(3) .mp-text { width: 62%; }
+.mp-row:nth-child(4) .mp-text { width: 74%; }
+
+.mp-reset .mp-part,
+.mp-stage[data-motion="none"] .mp-part {
+  transition: none;
+}
+
+.mp-stage:not(.is-in) .mp-part {
+  opacity: 0;
+}
+
+.mp-stage[data-motion="rise"]:not(.is-in) .mp-part {
+  transform: translateY(0.9rem);
+}
+
+.mp-stage[data-motion="slide"]:not(.is-in) .mp-part {
+  transform: translateX(-1.25rem);
+}
+
+.mp-stage[data-motion="focus"]:not(.is-in) .mp-part {
+  transform: scale(0.985);
+  filter: blur(4px);
+}
+
+.mp-stage[data-motion="none"] + .btn {
+  visibility: hidden;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;

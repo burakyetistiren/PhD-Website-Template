@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
-import { HttpError, readBody, readJson, safeJoin, mimeType } from './http.js';
+import { HttpError, receiveFile, readJson, safeJoin, mimeType } from './http.js';
 import {
   COLLECTIONS, SINGLETONS, newId, validateFields, validateItem, publicContent, rewriteRefs, schemaForClient,
 } from './schema.js';
@@ -53,6 +53,9 @@ async function walk(dir, prefix = '', out = []) {
 export function registerApi(router, { store, auth, runner, config }) {
   const loginLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 10 });
   const runLimiter = createRateLimiter({ windowMs: 10 * 60 * 1000, max: config.runRateLimit });
+  // Uploads are written here first and moved into place once complete. Same disk as media/ and
+  // demos/, so the move is instant; *.tmp is already in data/.gitignore.
+  const incomingDir = path.join(store.dataDir, 'incoming');
 
   const admin = (handler) => (ctx) => {
     if (!ctx.admin) throw new HttpError(401, 'Sign in to the admin to do this');
@@ -290,15 +293,19 @@ export function registerApi(router, { store, auth, runner, config }) {
   router.put('/api/media/:name', admin(async (ctx) => {
     let name = sanitizeMediaName(ctx.params.name);
     if (!name) throw new HttpError(422, `That file type can't be uploaded. Allowed: ${[...MEDIA_EXT].join(' ')}`);
-    const body = await readBody(ctx.req, config.maxUploadBytes);
-    if (!body.length) throw new HttpError(422, 'The file is empty');
-    if (ctx.query.get('overwrite') !== '1') {
-      const ext = path.extname(name);
-      const stem = name.slice(0, -ext.length);
-      for (let n = 2; fs.existsSync(path.join(store.mediaDir, name)); n++) name = `${stem}-${n}${ext}`;
+    const { tmp, size } = await receiveFile(ctx.req, incomingDir, config.maxUploadBytes);
+    try {
+      if (!size) throw new HttpError(422, 'The file is empty');
+      if (ctx.query.get('overwrite') !== '1') {
+        const ext = path.extname(name);
+        const stem = name.slice(0, -ext.length);
+        for (let n = 2; fs.existsSync(path.join(store.mediaDir, name)); n++) name = `${stem}-${n}${ext}`;
+      }
+      await fsp.rename(tmp, path.join(store.mediaDir, name));
+    } finally {
+      await fsp.rm(tmp, { force: true });
     }
-    await fsp.writeFile(path.join(store.mediaDir, name), body);
-    return { name, url: `/media/${encodeURIComponent(name)}`, size: body.length, type: mimeType(name) };
+    return { name, url: `/media/${encodeURIComponent(name)}`, size, type: mimeType(name) };
   }));
 
   router.delete('/api/media/:name', admin(async (ctx) => {
@@ -322,10 +329,14 @@ export function registerApi(router, { store, auth, runner, config }) {
     if (!rel) throw new HttpError(422, `"${ctx.params.wild}" is not an allowed file path (no hidden files or "..")`);
     const target = safeJoin(demoDir(ctx.params.slug), rel);
     if (!target) throw new HttpError(422, 'Invalid file path');
-    const body = await readBody(ctx.req, config.maxUploadBytes);
-    await fsp.mkdir(path.dirname(target), { recursive: true });
-    await fsp.writeFile(target, body);
-    return { path: rel, size: body.length };
+    const { tmp, size } = await receiveFile(ctx.req, incomingDir, config.maxUploadBytes);
+    try {
+      await fsp.mkdir(path.dirname(target), { recursive: true });
+      await fsp.rename(tmp, target);
+    } finally {
+      await fsp.rm(tmp, { force: true });
+    }
+    return { path: rel, size };
   }));
 
   router.delete('/api/demos/:slug/files/*', admin(async (ctx) => {

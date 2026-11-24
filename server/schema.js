@@ -1,3 +1,5 @@
+import { THEMES, DEFAULT_THEME } from '../site/themes.js';
+
 /**
  * The content schema. This one file drives three things:
  *   1. validation in the API (validateFields / validateContent),
@@ -7,9 +9,10 @@
  * To add a field, add it here. The admin console and API pick it up on restart;
  * render it on the site by editing site/render.js.
  *
- * Field types: string, text, markdown, code, url, media, email, date, number, boolean,
+ * Field types: string, text, markdown, code, url, media, email, date, month, number, boolean,
  *              select, tags, list (of sub-objects), ref (a demo slug), color, slug.
  * `showWhen: { field: value | [values] }` only shows a field in the admin when siblings match.
+ * `preview: 'motion'` shows a small animated sample of the chosen option under a select.
  */
 
 const link = [
@@ -66,16 +69,36 @@ export const SINGLETONS = {
     fields: [
       { key: 'siteTitle', type: 'string', label: 'Site title', max: 120, help: 'Shown in browser tabs. Defaults to your name.' },
       { key: 'description', type: 'text', label: 'Search engine description', max: 300 },
-      { key: 'accent', type: 'color', label: 'Link color', default: '#2346d8' },
       {
-        key: 'theme', type: 'select', label: 'Color theme', default: 'auto',
+        key: 'siteTheme', type: 'select', label: 'Theme', default: DEFAULT_THEME,
+        help: 'Colors, typefaces and shapes for the whole site. Each theme has a light and a dark version.',
+        options: Object.entries(THEMES).map(([value, t]) => ({ value, label: `${t.label}: ${t.description}` })),
+      },
+      {
+        key: 'theme', type: 'select', label: 'Light or dark', default: 'auto',
         options: [
           { value: 'auto', label: "Follow the visitor's system, with a toggle" },
           { value: 'light', label: 'Always light' },
           { value: 'dark', label: 'Always dark' },
         ],
       },
+      { key: 'accent', type: 'color', label: 'Link color', help: "Optional. Leave empty to use the theme's own color." },
       { key: 'webFonts', type: 'boolean', label: 'Load fonts from Google Fonts', default: true, help: 'Turn off to use system fonts and make no third-party requests.' },
+      {
+        key: 'animation', type: 'select', label: 'Animations', required: true, default: 'rise', preview: 'motion',
+        help: 'How content appears as visitors scroll down. Each part plays once. Visitors who ask their system for reduced motion see no animation.',
+        options: [
+          { value: 'none', label: 'None' },
+          { value: 'fade', label: 'Fade: content fades in' },
+          { value: 'rise', label: 'Rise: content fades in while sliding up' },
+          { value: 'slide', label: 'Slide: content glides in from the left, timeline cards grow out of the line' },
+          { value: 'focus', label: 'Focus: content sharpens out of a soft blur' },
+        ],
+      },
+      {
+        key: 'pageTransitions', type: 'boolean', label: 'Cross-fade between pages', default: true,
+        help: 'The header stays put while the rest of the page fades over. Works in Chrome, Edge and Safari; other browsers switch pages as usual.',
+      },
       { key: 'heroDemo', type: 'ref', collection: 'demos', label: 'Demo on the home page', help: 'Visitors can try it straight from the home page. Leave empty to hide.' },
       {
         key: 'homeSections', type: 'list', label: 'Home page sections', itemLabel: 'section',
@@ -142,6 +165,46 @@ export const COLLECTIONS = {
       { key: 'extraLinks', type: 'list', label: 'Other links', itemLabel: 'link', fields: link },
       { key: 'abstract', type: 'markdown', label: 'Abstract' },
       { key: 'bibtex', type: 'code', label: 'BibTeX', help: 'Shown behind a "BibTeX" toggle with a copy button.' },
+    ],
+  },
+  experience: {
+    label: 'Experience',
+    singular: 'experience entry',
+    titleField: 'title',
+    metaField: 'organization',
+    orderable: false,
+    sortHint: 'Shown as a timeline, newest first by start month. Show it on a page by setting that page\'s "Experience timeline" option.',
+    fields: [
+      { key: 'title', type: 'string', label: 'Role, degree or award', required: true, max: 160 },
+      { key: 'organization', type: 'string', label: 'Organization', required: true, max: 200 },
+      { key: 'organizationUrl', type: 'url', label: 'Organization website' },
+      {
+        key: 'kind', type: 'select', label: 'Kind', default: 'research', help: 'Visitors can filter the timeline by kind.',
+        options: [
+          { value: 'education', label: 'Education' },
+          { value: 'research', label: 'Research' },
+          { value: 'industry', label: 'Industry' },
+          { value: 'teaching', label: 'Teaching' },
+          { value: 'service', label: 'Service' },
+          { value: 'volunteering', label: 'Volunteering' },
+          { value: 'award', label: 'Award' },
+        ],
+      },
+      { key: 'start', type: 'month', label: 'Start', required: true },
+      { key: 'end', type: 'month', label: 'End', help: 'Leave empty for something that happened in a single month, like an award.' },
+      { key: 'current', type: 'boolean', label: 'Still ongoing', help: 'Shows "Present" as the end, and highlights the circle.' },
+      { key: 'location', type: 'string', label: 'Location', max: 120 },
+      { key: 'image', type: 'media', label: 'Logo or photo', accept: 'image/*', help: 'Shown in the circle on the timeline.' },
+      {
+        key: 'imageFit', type: 'select', label: 'How the image sits in the circle', default: 'fill',
+        options: [
+          { value: 'fill', label: 'Fill the circle (square icons, round seals, photos)' },
+          { value: 'fit', label: 'Fit inside with a margin (wide logos and wordmarks)' },
+        ],
+      },
+      { key: 'imageBackground', type: 'color', label: 'Circle colour behind the image', help: "Match the logo's own background so the two blend into one circle. White if empty." },
+      { key: 'badge', type: 'string', label: 'Circle text', max: 6, help: "Shown in the circle when there is no image, e.g. MIT. Defaults to the organization's initials." },
+      { key: 'description', type: 'markdown', label: 'Description', rows: 4 },
     ],
   },
   projects: {
@@ -285,7 +348,16 @@ export const COLLECTIONS = {
     fields: [
       { key: 'title', type: 'string', label: 'Title', required: true, max: 160 },
       { key: 'slug', type: 'slug', label: 'Address', required: true, unique: true, help: 'The page lives at /<address>. Add it to the navigation in Site settings.' },
-      { key: 'body', type: 'markdown', label: 'Content', required: true, rows: 16 },
+      {
+        key: 'timeline', type: 'select', label: 'Experience timeline', default: 'none',
+        help: 'Shows your Experience entries on this page as a timeline.',
+        options: [
+          { value: 'none', label: "Don't show" },
+          { value: 'top', label: 'Show above the text' },
+          { value: 'bottom', label: 'Show below the text' },
+        ],
+      },
+      { key: 'body', type: 'markdown', label: 'Content', rows: 16 },
     ],
   },
 };
@@ -323,6 +395,7 @@ function coerce(field, raw) {
     case 'slug':
     case 'ref':
     case 'color':
+    case 'month':
     case 'date': {
       if (typeof raw !== 'string' && typeof raw !== 'number') return [undefined, 'Must be text'];
       let v = String(raw);
@@ -333,6 +406,7 @@ function coerce(field, raw) {
       if ((field.type === 'url' || field.type === 'media') && !isSafeUrl(v)) return [undefined, 'Use an http(s), mailto or relative address'];
       if (field.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return [undefined, 'Enter an email address like name@university.edu'];
       if (field.type === 'date' && !/^\d{4}-\d{2}-\d{2}$/.test(v)) return [undefined, 'Use the format YYYY-MM-DD'];
+      if (field.type === 'month' && !/^\d{4}-(0[1-9]|1[0-2])$/.test(v)) return [undefined, 'Use the format YYYY-MM, e.g. 2023-09'];
       if (field.type === 'color' && !/^#[0-9a-fA-F]{6}$/.test(v)) return [undefined, 'Use a hex color like #2346d8'];
       if ((field.type === 'slug' || field.type === 'ref') && !/^[a-z0-9][a-z0-9-]{0,62}$/.test(v)) {
         return [undefined, 'Use lowercase letters, numbers and dashes'];

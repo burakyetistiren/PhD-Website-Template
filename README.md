@@ -22,6 +22,7 @@ Open http://localhost:3000 for the site and http://localhost:3000/admin for the 
 | You want to… | In the admin | From the terminal |
 | --- | --- | --- |
 | Post news | Overview → Post a news item | `npm run site -- news "Paper accepted!"` |
+| Add a job, degree, service role or award | Experience → New experience entry | |
 | Add publications | Publications → Import BibTeX | `npm run site -- bibtex papers.bib` |
 | Publish a browser demo | Demos → (demo) → Upload a folder | `npm run site -- push-demo my-tool ./dist` |
 | Change your photo, bio, CV | Profile | |
@@ -29,6 +30,8 @@ Open http://localhost:3000 for the site and http://localhost:3000/admin for the 
 | Undo a mistake | History and backups → Restore | `npm run site -- restore backup.json` |
 
 The terminal commands talk to a running site through its API. Log in once with `npm run site -- login --url https://your.site`. The token is saved in `~/.config/phd-site/credentials.json`; in CI, set `SITE_URL` and `SITE_TOKEN` instead.
+
+**Experience timeline.** Experience entries appear as a two-sided timeline: one circle per entry (the organization's logo, or its initials), cards alternating left and right, dates opposite, and filters by kind. Any page can show it: set that page's **Experience timeline** option to above or below its text. The example Experience page shows it above a skills list.
 
 Changes show up on the site immediately. Every save keeps the previous version (the last 50 are listed under **History and backups**).
 
@@ -89,7 +92,9 @@ Paste the address of a Hugging Face Space, Streamlit app, StackBlitz project, Yo
 
 ## Customizing
 
-- **Colors and type**: the link color is a setting. Everything else is in `site/assets/site.css`; the design tokens are at the top.
+- **Themes**: pick one in **Site settings**: Paper, Blueprint, Swiss, Riso, Midnight or Garden. Each changes colors, typefaces, corners and background, and has a light and a dark version. Preview any theme on any page by adding `?theme=riso` (or another name) to the address; the Site settings page has buttons for this.
+- **Colors and type**: themes live in `site/themes.js` (name, fonts) and `site/assets/themes.css` (tokens and signature details); Paper's tokens are at the top of `site/assets/site.css`. An optional link color in Site settings overrides the theme's.
+- **Animations**: pick one in **Site settings**: Fade, Rise (the default), Slide, Focus or None. A small preview under the menu plays each one. Each part of a page plays once as it scrolls into view, and parts that enter together play one after another; timeline circles pop onto the line before their cards follow. **Cross-fade between pages** (on by default) keeps the header still while the page changes, in Chrome, Edge and Safari. Visitors whose system asks for reduced motion, or who have JavaScript off, see the page without animation. To change the movement, edit the Animations section of `site/assets/site.css`; to add a style, add an option in `server/schema.js`, its name in `MOTION_STYLES` in `site/render.js`, and its hidden state in `site.css` and `admin/admin.css`.
 - **Layout**: the page templates are plain functions in `site/render.js`. Values are HTML-escaped automatically, so content can never inject markup.
 - **New fields or content types**: add them to `server/schema.js`. The API validates against it and the admin console builds its forms from it, so a new field appears in the console with no other change. Then show it in `site/render.js`.
 
@@ -129,7 +134,7 @@ All admin endpoints need `Authorization: Bearer <token>` from `POST /api/auth/lo
 | `GET /api/schema` | Field definitions for every content type |
 | `GET` / `PUT /api/content` | Read or replace everything (validated; previous version backed up) |
 | `GET` / `PUT /api/profile`, `/api/settings` | Read or replace one section |
-| `GET` / `POST /api/collections/:name` | List or create items (`news`, `publications`, `projects`, `demos`, `talks`, `teaching`, `pages`) |
+| `GET` / `POST /api/collections/:name` | List or create items (`news`, `publications`, `experience`, `projects`, `demos`, `talks`, `teaching`, `pages`) |
 | `GET` / `PUT` / `DELETE /api/collections/:name/:id` | Read, replace or delete an item |
 | `POST /api/collections/:name/reorder` `{ids}` | Set the order |
 | `POST /api/collections/:name/:id/duplicate` | Copy an item |

@@ -1,0 +1,560 @@
+/*
+ * Site themes. Generated from one palette table so every theme sets the same tokens.
+ * Paper (the default) lives in site.css; each theme here overrides the tokens under
+ * :root[data-style="<id>"] for light, and again for dark (set by the visitor's choice,
+ * the owner's setting, or the system preference when JavaScript is off).
+ * Pick a theme in Site settings, or preview one on any page with ?theme=<id>.
+ */
+/* ── Blueprint: engineering-drawing blue with a faint grid and monospace headings. */
+:root[data-style="blueprint"] {
+  --display: "Azeret Mono", ui-monospace, Menlo, monospace;
+  --sans: "Azeret Mono", ui-monospace, Menlo, monospace;
+  --serif: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "Azeret Mono", ui-monospace, Menlo, monospace;
+  --radius-lg: 4px;
+  --radius-sm: 2px;
+  --pill: 3px;
+  --node-radius: 50%;
+  --bg-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px), linear-gradient(var(--grid-major) 1px, transparent 1px), linear-gradient(90deg, var(--grid-major) 1px, transparent 1px);
+  --bg-size: 24px 24px, 24px 24px, 120px 120px, 120px 120px;
+  --paper: #f2f6fb;
+  --paper-raised: #ffffff;
+  --card-bg: rgb(255 255 255 / 0.85);
+  --ink: #0f2f57;
+  --ink-soft: #36557d;
+  --ink-faint: #55708f;
+  --rule: #b9cbe2;
+  --accent: #0b5fbd;
+  --link: var(--accent);
+  --marker: #ffd43b;
+  --marker-ink: #0f2f57;
+  --grid: rgb(15 47 87 / 0.07);
+  --grid-major: rgb(15 47 87 / 0.14);
+  --bench-bg: #0f2f57;
+  --bench-panel: #133766;
+  --bench-line: #23497a;
+  --bench-ink: #e8f0fb;
+  --bench-dim: #93abcc;
+  --bench-err: #ffb199;
+  --bench-ok: #9be0bd;
+  color-scheme: light;
+}
+
+:root[data-style="blueprint"][data-theme="dark"],
+:root[data-style="blueprint"][data-theme-pref="dark"] {
+  --paper: #123b6b;
+  --paper-raised: #174677;
+  --card-bg: rgb(255 255 255 / 0.05);
+  --ink: #eef5ff;
+  --ink-soft: #c3d5ee;
+  --ink-faint: #a3bde0;
+  --rule: rgb(214 230 255 / 0.32);
+  --accent: #86d5ff;
+  --link: var(--accent);
+  --marker: #ffd43b;
+  --marker-ink: #0f2f57;
+  --grid: rgb(255 255 255 / 0.085);
+  --grid-major: rgb(255 255 255 / 0.17);
+  --bench-bg: #0a2647;
+  --bench-panel: #0d2d54;
+  --bench-line: #24497a;
+  --bench-ink: #eef5ff;
+  --bench-dim: #8fb0d9;
+  --bench-err: #ffb199;
+  --bench-ok: #9be0bd;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-style="blueprint"][data-theme-pref="auto"]:not([data-theme]) {
+    --paper: #123b6b;
+    --paper-raised: #174677;
+    --card-bg: rgb(255 255 255 / 0.05);
+    --ink: #eef5ff;
+    --ink-soft: #c3d5ee;
+    --ink-faint: #a3bde0;
+    --rule: rgb(214 230 255 / 0.32);
+    --accent: #86d5ff;
+    --link: var(--accent);
+    --marker: #ffd43b;
+    --marker-ink: #0f2f57;
+    --grid: rgb(255 255 255 / 0.085);
+    --grid-major: rgb(255 255 255 / 0.17);
+    --bench-bg: #0a2647;
+    --bench-panel: #0d2d54;
+    --bench-line: #24497a;
+    --bench-ink: #eef5ff;
+    --bench-dim: #8fb0d9;
+    --bench-err: #ffb199;
+    --bench-ok: #9be0bd;
+    color-scheme: dark;
+  }
+}
+
+/* Drafting details: dashed outlines and a dashed timeline, mono names that fit narrow screens. */
+:root[data-style="blueprint"] .tl-card,
+:root[data-style="blueprint"] .tags li,
+:root[data-style="blueprint"] .filters button,
+:root[data-style="blueprint"] .project-shot {
+  border-style: dashed;
+}
+
+:root[data-style="blueprint"] .tl::before {
+  background: repeating-linear-gradient(to bottom, var(--rule) 0 6px, transparent 6px 12px);
+}
+
+:root[data-style="blueprint"] .intro-name {
+  font-size: clamp(1.9rem, 5.2vw, 3.4rem);
+  font-weight: 600;
+  letter-spacing: -0.05em;
+}
+
+:root[data-style="blueprint"] .page-head h1 {
+  letter-spacing: -0.05em;
+}
+
+/* ── Swiss: black, white and signal red; one bold grotesk; square corners and square nodes. */
+:root[data-style="swiss"] {
+  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --sans: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --serif: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --mono: "Fragment Mono", ui-monospace, Menlo, monospace;
+  --radius-lg: 0;
+  --radius-sm: 0;
+  --pill: 0;
+  --node-radius: 0;
+  --paper: #ffffff;
+  --paper-raised: #ffffff;
+  --card-bg: transparent;
+  --ink: #000000;
+  --ink-soft: #2b2b2b;
+  --ink-faint: #595959;
+  --rule: #000000;
+  --accent: #d70511;
+  --link: var(--accent);
+  --marker: #e30613;
+  --marker-ink: #ffffff;
+  --bench-bg: #000000;
+  --bench-panel: #121212;
+  --bench-line: #3a3a3a;
+  --bench-ink: #ffffff;
+  --bench-dim: #a3a3a3;
+  --bench-err: #ff7a6b;
+  --bench-ok: #8be3a3;
+  color-scheme: light;
+}
+
+:root[data-style="swiss"][data-theme="dark"],
+:root[data-style="swiss"][data-theme-pref="dark"] {
+  --paper: #000000;
+  --paper-raised: #0f0f0f;
+  --card-bg: transparent;
+  --ink: #ffffff;
+  --ink-soft: #d6d6d6;
+  --ink-faint: #a6a6a6;
+  --rule: #ffffff;
+  --accent: #ff3b45;
+  --link: var(--accent);
+  --marker: #e30613;
+  --marker-ink: #ffffff;
+  --bench-bg: #141414;
+  --bench-panel: #1c1c1c;
+  --bench-line: #3a3a3a;
+  --bench-ink: #ffffff;
+  --bench-dim: #a3a3a3;
+  --bench-err: #ff7a6b;
+  --bench-ok: #8be3a3;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-style="swiss"][data-theme-pref="auto"]:not([data-theme]) {
+    --paper: #000000;
+    --paper-raised: #0f0f0f;
+    --card-bg: transparent;
+    --ink: #ffffff;
+    --ink-soft: #d6d6d6;
+    --ink-faint: #a6a6a6;
+    --rule: #ffffff;
+    --accent: #ff3b45;
+    --link: var(--accent);
+    --marker: #e30613;
+    --marker-ink: #ffffff;
+    --bench-bg: #141414;
+    --bench-panel: #1c1c1c;
+    --bench-line: #3a3a3a;
+    --bench-ink: #ffffff;
+    --bench-dim: #a3a3a3;
+    --bench-err: #ff7a6b;
+    --bench-ok: #8be3a3;
+    color-scheme: dark;
+  }
+}
+
+/* International Typographic Style: heavy condensed name, thick rules above sections. */
+:root[data-style="swiss"] .intro-name {
+  font-weight: 800;
+  font-stretch: 82%;
+  letter-spacing: -0.045em;
+}
+
+:root[data-style="swiss"] .page-head h1,
+:root[data-style="swiss"] .block-title {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+:root[data-style="swiss"] .block-title {
+  padding-top: 0.75rem;
+  border-top: 4px solid var(--ink);
+}
+
+:root[data-style="swiss"] .tl-card {
+  border: 0;
+  border-top: 3px solid var(--ink);
+}
+
+:root[data-style="swiss"] .tl-card::after {
+  top: -2px;
+}
+
+:root[data-style="swiss"] .nav a[aria-current="page"] {
+  text-decoration-thickness: 3px;
+}
+
+:root[data-style="swiss"] mark.me {
+  background: var(--marker);
+  color: var(--marker-ink);
+}
+
+/* ── Riso: a risograph print in blue ink and fluorescent pink, with paper grain and misregistration. */
+:root[data-style="riso"] {
+  --display: "Young Serif", Georgia, serif;
+  --sans: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --serif: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "Fragment Mono", ui-monospace, Menlo, monospace;
+  --radius-lg: 14px;
+  --radius-sm: 8px;
+  --pill: 999px;
+  --node-radius: 50%;
+  --bg-size: 180px 180px;
+  --name-shadow: 0.05em 0.045em 0 rgb(255 72 176 / 0.85);
+  --paper: #f2f0ea;
+  --paper-raised: #faf8f3;
+  --card-bg: var(--paper-raised);
+  --ink: #213a8f;
+  --ink-soft: #3a52a3;
+  --ink-faint: #5465ad;
+  --rule: #cbd0e6;
+  --accent: #c80e6c;
+  --link: var(--accent);
+  --marker: #ffe14a;
+  --marker-ink: #213a8f;
+  --bg-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.13 0 0 0 0 0.2 0 0 0 0 0.5 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --bench-bg: #213a8f;
+  --bench-panel: #2843a0;
+  --bench-line: #3b57b3;
+  --bench-ink: #f7f4ec;
+  --bench-dim: #b6c0e6;
+  --bench-err: #ffb1d6;
+  --bench-ok: #b8f0c8;
+  color-scheme: light;
+}
+
+:root[data-style="riso"][data-theme="dark"],
+:root[data-style="riso"][data-theme-pref="dark"] {
+  --paper: #1a2459;
+  --paper-raised: #212c66;
+  --card-bg: var(--paper-raised);
+  --ink: #f6f2e8;
+  --ink-soft: #cfd1ea;
+  --ink-faint: #a7acd6;
+  --rule: #36418a;
+  --accent: #ff7cc1;
+  --link: var(--accent);
+  --marker: #ffe14a;
+  --marker-ink: #1a2459;
+  --bg-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.95 0 0 0 0 0.9 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --bench-bg: #111845;
+  --bench-panel: #161e53;
+  --bench-line: #2c3780;
+  --bench-ink: #f6f2e8;
+  --bench-dim: #a7acd6;
+  --bench-err: #ffb1d6;
+  --bench-ok: #b8f0c8;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-style="riso"][data-theme-pref="auto"]:not([data-theme]) {
+    --paper: #1a2459;
+    --paper-raised: #212c66;
+    --card-bg: var(--paper-raised);
+    --ink: #f6f2e8;
+    --ink-soft: #cfd1ea;
+    --ink-faint: #a7acd6;
+    --rule: #36418a;
+    --accent: #ff7cc1;
+    --link: var(--accent);
+    --marker: #ffe14a;
+    --marker-ink: #1a2459;
+    --bg-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.95 0 0 0 0 0.9 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    --bench-bg: #111845;
+    --bench-panel: #161e53;
+    --bench-line: #2c3780;
+    --bench-ink: #f6f2e8;
+    --bench-dim: #a7acd6;
+    --bench-err: #ffb1d6;
+    --bench-ok: #b8f0c8;
+    color-scheme: dark;
+  }
+}
+
+/* Overprint: pink plates printed slightly off-register behind the blue. */
+:root[data-style="riso"] {
+  font-synthesis-weight: none;
+}
+
+:root[data-style="riso"] .intro-name,
+:root[data-style="riso"] .page-head h1 {
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+:root[data-style="riso"] .block-title,
+:root[data-style="riso"] .item-title,
+:root[data-style="riso"] .pub-title,
+:root[data-style="riso"] .tl-title,
+:root[data-style="riso"] .wordmark,
+:root[data-style="riso"] .margin--year,
+:root[data-style="riso"] .hero-demo-head h2 {
+  font-weight: 400;
+}
+
+:root[data-style="riso"] .bench {
+  box-shadow: 7px 7px 0 rgb(255 72 176 / 0.75);
+}
+
+:root[data-style="riso"] .tl-card {
+  box-shadow: 4px 4px 0 rgb(255 72 176 / 0.35);
+}
+
+:root[data-style="riso"] .tags li {
+  border-color: rgb(255 72 176 / 0.55);
+}
+
+/* ── Midnight: deep navy with amber accents, elegant serifs and a faint starfield. */
+:root[data-style="midnight"] {
+  --display: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  --sans: "Crimson Pro", "Iowan Old Style", Georgia, serif;
+  --serif: "Crimson Pro", "Iowan Old Style", Georgia, serif;
+  --mono: "Fragment Mono", ui-monospace, Menlo, monospace;
+  --radius-lg: 12px;
+  --radius-sm: 6px;
+  --pill: 999px;
+  --node-radius: 50%;
+  --paper: #f4f2fb;
+  --paper-raised: #ffffff;
+  --card-bg: var(--paper-raised);
+  --ink: #1a1c3a;
+  --ink-soft: #464a70;
+  --ink-faint: #62668c;
+  --rule: #dcd9ec;
+  --accent: #5a45d6;
+  --link: var(--accent);
+  --marker: #ffd78a;
+  --marker-ink: #1a1c3a;
+  --bg-image: none;
+  --bg-size: auto;
+  --bench-bg: #1a1c3a;
+  --bench-panel: #22254a;
+  --bench-line: #34386a;
+  --bench-ink: #ece8f5;
+  --bench-dim: #a3a1c6;
+  --bench-err: #ffb39e;
+  --bench-ok: #a6e3bf;
+  color-scheme: light;
+}
+
+:root[data-style="midnight"][data-theme="dark"],
+:root[data-style="midnight"][data-theme-pref="dark"] {
+  --paper: #0c1124;
+  --paper-raised: #141a33;
+  --card-bg: var(--paper-raised);
+  --ink: #ece8f5;
+  --ink-soft: #bcb7d3;
+  --ink-faint: #9692b2;
+  --rule: #262d4f;
+  --accent: #f2b65e;
+  --link: var(--accent);
+  --marker: #f2b65e;
+  --marker-ink: #0c1124;
+  --bg-image: radial-gradient(1px 1px at 23px 41px, rgb(255 255 255 / 0.55), transparent), radial-gradient(1px 1px at 131px 87px, rgb(255 255 255 / 0.35), transparent), radial-gradient(1.5px 1.5px at 207px 163px, rgb(242 182 94 / 0.5), transparent), radial-gradient(1px 1px at 79px 211px, rgb(255 255 255 / 0.4), transparent), radial-gradient(1px 1px at 251px 19px, rgb(255 255 255 / 0.3), transparent);
+  --bg-size: 280px 240px;
+  --bench-bg: #070b18;
+  --bench-panel: #0b1022;
+  --bench-line: #1f2747;
+  --bench-ink: #ece8f5;
+  --bench-dim: #8c88a8;
+  --bench-err: #ffb39e;
+  --bench-ok: #a6e3bf;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-style="midnight"][data-theme-pref="auto"]:not([data-theme]) {
+    --paper: #0c1124;
+    --paper-raised: #141a33;
+    --card-bg: var(--paper-raised);
+    --ink: #ece8f5;
+    --ink-soft: #bcb7d3;
+    --ink-faint: #9692b2;
+    --rule: #262d4f;
+    --accent: #f2b65e;
+    --link: var(--accent);
+    --marker: #f2b65e;
+    --marker-ink: #0c1124;
+    --bg-image: radial-gradient(1px 1px at 23px 41px, rgb(255 255 255 / 0.55), transparent), radial-gradient(1px 1px at 131px 87px, rgb(255 255 255 / 0.35), transparent), radial-gradient(1.5px 1.5px at 207px 163px, rgb(242 182 94 / 0.5), transparent), radial-gradient(1px 1px at 79px 211px, rgb(255 255 255 / 0.4), transparent), radial-gradient(1px 1px at 251px 19px, rgb(255 255 255 / 0.3), transparent);
+    --bg-size: 280px 240px;
+    --bench-bg: #070b18;
+    --bench-panel: #0b1022;
+    --bench-line: #1f2747;
+    --bench-ink: #ece8f5;
+    --bench-dim: #8c88a8;
+    --bench-err: #ffb39e;
+    --bench-ok: #a6e3bf;
+    color-scheme: dark;
+  }
+}
+
+/* Bookish evening: larger serif text, italic section titles. */
+:root[data-style="midnight"] body {
+  font-size: 1.1875rem;
+}
+
+:root[data-style="midnight"] .intro-name {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+:root[data-style="midnight"] .block-title {
+  font-size: 1.875rem;
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+:root[data-style="midnight"] .page-head h1 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+:root[data-style="midnight"] .item-title,
+:root[data-style="midnight"] .pub-title,
+:root[data-style="midnight"] .tl-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+/* ── Garden: sage paper and leaf green, soft rounded corners, bookish serifs. */
+:root[data-style="garden"] {
+  --display: "Gloock", Georgia, serif;
+  --sans: "Literata", Georgia, serif;
+  --serif: "Literata", Georgia, serif;
+  --mono: "Fragment Mono", ui-monospace, Menlo, monospace;
+  --radius-lg: 18px;
+  --radius-sm: 10px;
+  --pill: 999px;
+  --node-radius: 50%;
+  --bg-image: none;
+  --bg-size: auto;
+  --paper: #edf1e7;
+  --paper-raised: #f8faf4;
+  --card-bg: var(--paper-raised);
+  --ink: #1c3324;
+  --ink-soft: #41604a;
+  --ink-faint: #57705d;
+  --rule: #cdd8c5;
+  --accent: #2a7043;
+  --link: var(--accent);
+  --marker: #f6c453;
+  --marker-ink: #1c3324;
+  --bench-bg: #1c3324;
+  --bench-panel: #22402c;
+  --bench-line: #345a40;
+  --bench-ink: #eaf2e4;
+  --bench-dim: #9db8a4;
+  --bench-err: #ffb59e;
+  --bench-ok: #a7e3b5;
+  color-scheme: light;
+}
+
+:root[data-style="garden"][data-theme="dark"],
+:root[data-style="garden"][data-theme-pref="dark"] {
+  --paper: #122019;
+  --paper-raised: #18291f;
+  --card-bg: var(--paper-raised);
+  --ink: #e6efe1;
+  --ink-soft: #b5c8b4;
+  --ink-faint: #93ad97;
+  --rule: #2b4233;
+  --accent: #8fd19e;
+  --link: var(--accent);
+  --marker: #f6c453;
+  --marker-ink: #122019;
+  --bench-bg: #0b150f;
+  --bench-panel: #0f1c14;
+  --bench-line: #22382a;
+  --bench-ink: #e6efe1;
+  --bench-dim: #8aa58e;
+  --bench-err: #ffb59e;
+  --bench-ok: #a7e3b5;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-style="garden"][data-theme-pref="auto"]:not([data-theme]) {
+    --paper: #122019;
+    --paper-raised: #18291f;
+    --card-bg: var(--paper-raised);
+    --ink: #e6efe1;
+    --ink-soft: #b5c8b4;
+    --ink-faint: #93ad97;
+    --rule: #2b4233;
+    --accent: #8fd19e;
+    --link: var(--accent);
+    --marker: #f6c453;
+    --marker-ink: #122019;
+    --bench-bg: #0b150f;
+    --bench-panel: #0f1c14;
+    --bench-line: #22382a;
+    --bench-ink: #e6efe1;
+    --bench-dim: #8aa58e;
+    --bench-err: #ffb59e;
+    --bench-ok: #a7e3b5;
+    color-scheme: dark;
+  }
+}
+
+/* Gloock has one weight; keep headings at it rather than faking bold. */
+:root[data-style="garden"] {
+  font-synthesis-weight: none;
+}
+
+:root[data-style="garden"] .intro-name,
+:root[data-style="garden"] .page-head h1,
+:root[data-style="garden"] .block-title,
+:root[data-style="garden"] .item-title,
+:root[data-style="garden"] .pub-title,
+:root[data-style="garden"] .tl-title,
+:root[data-style="garden"] .wordmark,
+:root[data-style="garden"] .margin--year,
+:root[data-style="garden"] .hero-demo-head h2 {
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+:root[data-style="garden"] .tl-card {
+  box-shadow: 0 1px 0 var(--rule), 0 10px 24px -18px rgb(28 51 36 / 0.35);
+}

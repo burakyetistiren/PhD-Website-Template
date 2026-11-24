@@ -29,6 +29,18 @@
   --sans: "Familjen Grotesk", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --mono: "Fragment Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
+  /* Themeable shape and texture (see themes.css) */
+  --display: var(--sans);
+  --radius-lg: 10px;
+  --radius-sm: 6px;
+  --pill: 999px;
+  --node-radius: 50%;
+  --marker-ink: #131a27;
+  --card-bg: var(--paper-raised);
+  --bg-image: none;
+  --bg-size: auto;
+  --name-shadow: none;
+
   --margin: 7.5rem;
   --gutter: 2rem;
   --indent: calc(var(--margin) + var(--gutter));
@@ -83,7 +95,9 @@ html {
 
 body {
   margin: 0;
-  background: var(--paper);
+  background-color: var(--paper);
+  background-image: var(--bg-image);
+  background-size: var(--bg-size);
   color: var(--ink);
   font: 400 1.125rem/1.6 var(--serif);
   font-optical-sizing: auto;
@@ -145,6 +159,7 @@ img {
 }
 
 .wordmark {
+  font-family: var(--display);
   color: var(--ink);
   font-weight: 650;
   font-size: 1.0625rem;
@@ -215,7 +230,7 @@ img {
   width: var(--margin);
   aspect-ratio: 1;
   object-fit: cover;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   margin-top: 0.4rem;
 }
 
@@ -230,8 +245,9 @@ img {
 
 .intro-name {
   margin: 0;
-  font: 650 clamp(2.5rem, 6.4vw, 4.25rem)/0.98 var(--sans);
+  font: 650 clamp(2.5rem, 6.4vw, 4.25rem)/0.98 var(--display);
   letter-spacing: -0.035em;
+  text-shadow: var(--name-shadow);
 }
 
 .pronouns {
@@ -293,6 +309,7 @@ img {
 
 .hero-demo-head h2 {
   margin: 0;
+  font-family: var(--display);
   font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -312,7 +329,7 @@ img {
   margin: 0;
   background: var(--bench-bg);
   color: var(--bench-ink);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: 0 24px 48px -32px rgb(19 26 39 / 0.55);
 }
@@ -397,7 +414,7 @@ img {
   max-width: 14rem;
   padding: 0.3rem 1.75rem 0.3rem 0.6rem;
   border: 1px solid var(--bench-line);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--bench-bg)
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238e99ad' stroke-width='1.5'/%3E%3C/svg%3E")
     no-repeat right 0.6rem center;
@@ -450,15 +467,15 @@ img {
 .bench-run {
   padding: 0.4rem 1.125rem;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--marker);
-  color: #131a27;
+  color: var(--marker-ink);
   font: 600 0.875rem/1.2 var(--sans);
   cursor: pointer;
 }
 
 .bench-run:hover:not(:disabled) {
-  background: #fff07f;
+  filter: brightness(1.08);
 }
 
 .bench-run:disabled {
@@ -487,7 +504,7 @@ img {
 
 .block-title {
   margin: 0 0 1.25rem var(--indent);
-  font: 600 1.5rem/1.2 var(--sans);
+  font: 600 1.5rem/1.2 var(--display);
   letter-spacing: -0.015em;
 }
 
@@ -532,7 +549,7 @@ main > .prose,
   top: 1.25rem;
   align-self: start;
   padding-top: 0;
-  font: 600 1.625rem/1 var(--sans);
+  font: 600 1.625rem/1 var(--display);
   letter-spacing: -0.03em;
   color: var(--ink);
 }
@@ -556,7 +573,7 @@ main > .prose,
 
 .item-title {
   margin: 0;
-  font: 600 1.125rem/1.35 var(--sans);
+  font: 600 1.125rem/1.35 var(--display);
   letter-spacing: -0.008em;
 }
 
@@ -584,7 +601,7 @@ main > .prose,
   display: block;
   margin: 0.875rem 0 0;
   border: 1px solid var(--rule);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 .links {
@@ -627,7 +644,7 @@ main > .prose,
 .tags li {
   padding: 0.25rem 0.625rem;
   border: 1px solid var(--rule);
-  border-radius: 999px;
+  border-radius: var(--pill);
   background: var(--paper-raised);
   color: var(--ink-soft);
   font: 500 0.8125rem/1.3 var(--sans);
@@ -646,7 +663,7 @@ main > .prose,
 .notice {
   padding: 1rem;
   border: 1px dashed var(--rule);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   color: var(--ink-soft);
 }
 
@@ -662,7 +679,7 @@ main > .prose,
 
 .pub-title {
   margin: 0;
-  font: 600 1.0625rem/1.38 var(--sans);
+  font: 600 1.0625rem/1.38 var(--display);
   letter-spacing: -0.005em;
   text-wrap: pretty;
 }
@@ -774,7 +791,7 @@ mark.me {
   max-height: 20rem;
   overflow: auto;
   border: 1px solid var(--rule);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--paper-raised);
   color: var(--ink);
   font: 0.8125rem/1.55 var(--mono);
@@ -807,7 +824,7 @@ mark.me {
 .filters button {
   padding: 0.35rem 0.8rem;
   border: 1px solid var(--rule);
-  border-radius: 999px;
+  border-radius: var(--pill);
   background: transparent;
   color: var(--ink-soft);
   font: 500 0.875rem/1.2 var(--sans);
@@ -837,7 +854,7 @@ mark.me {
 
 .page-head h1 {
   margin: 0;
-  font: 650 clamp(2.125rem, 5vw, 3rem)/1.05 var(--sans);
+  font: 650 clamp(2.125rem, 5vw, 3rem)/1.05 var(--display);
   letter-spacing: -0.03em;
 }
 
@@ -868,7 +885,7 @@ mark.me {
 .prose h3,
 .prose h4 {
   margin: 1.75em 0 0.5em;
-  font-family: var(--sans);
+  font-family: var(--display);
   font-weight: 600;
   letter-spacing: -0.01em;
   line-height: 1.25;
@@ -907,7 +924,7 @@ mark.me {
 .prose pre {
   padding: 0.875rem 1rem;
   overflow: auto;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--bench-bg);
   color: var(--bench-ink);
   font: 0.875rem/1.6 var(--mono);
@@ -921,7 +938,7 @@ mark.me {
 }
 
 .prose img {
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 .prose hr {
@@ -933,6 +950,255 @@ mark.me {
 .prose--small {
   margin-top: 0.5rem;
   font-size: 1.0625rem;
+}
+
+/* ── Experience timeline ──────────────────────────────────── */
+/* A centre line with one circle per entry; cards alternate sides and the dates sit
+   opposite them. On narrow screens the line moves to the left edge. */
+
+.tl-filters {
+  justify-content: center;
+  max-width: none;
+  margin: 0 0 0.5rem;
+}
+
+.timeline + .prose {
+  margin-top: 3.5rem;
+}
+
+.prose + .timeline {
+  margin-top: 3rem;
+}
+
+.tl {
+  --node: 3.75rem;
+  position: relative;
+  list-style: none;
+  margin: 1.75rem 0 0;
+  padding: 0;
+}
+
+.tl::before {
+  content: "";
+  position: absolute;
+  top: 1rem;
+  bottom: 2.5rem;
+  left: 50%;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--rule);
+}
+
+.tl-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--node) minmax(0, 1fr);
+  column-gap: 1.5rem;
+  align-items: start;
+  padding-bottom: 2.25rem;
+}
+
+.tl-node {
+  position: relative;
+  z-index: 1;
+  grid-column: 2;
+  grid-row: 1;
+  display: grid;
+  place-items: center;
+  width: var(--node);
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 2px solid var(--rule);
+  border-radius: var(--node-radius);
+  background: var(--paper-raised);
+  box-shadow: 0 0 0 5px var(--paper);
+}
+
+/* Image circles: "fill" covers the whole circle (square icons, round seals, photos);
+   "fit" keeps a wide logo whole inside a safe margin. The circle colour comes from the
+   entry (--node-bg) so a logo's own background can fill the circle; logos default to white. */
+.tl-node--fill,
+.tl-node--fit {
+  background: var(--node-bg, #fff);
+}
+
+.tl-node img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* A wide logo can use more of the width than the height and still clear the circle. */
+.tl-node--fit img {
+  padding: 15% 12%;
+  object-fit: contain;
+}
+
+.tl-current .tl-node {
+  border-color: var(--accent);
+}
+
+.tl-badge {
+  font: 650 1.05rem/1 var(--sans);
+  letter-spacing: -0.01em;
+  color: var(--ink-soft);
+}
+
+.tl-badge--3 {
+  font-size: 0.9rem;
+}
+
+.tl-badge--4 {
+  font-size: 0.78rem;
+}
+
+.tl-badge--5 {
+  font-size: 0.66rem;
+}
+
+.tl-when {
+  grid-row: 1;
+  margin: 0;
+  padding-top: 1.25rem;
+  font: 500 0.875rem/1.4 var(--sans);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+}
+
+.tl-current .tl-when {
+  color: var(--ink-soft);
+}
+
+.tl-card {
+  position: relative;
+  grid-row: 1;
+  padding: 1rem 1.25rem 1.1rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  background: var(--card-bg);
+}
+
+.tl-compact .tl-card {
+  padding-block: 0.8rem 0.85rem;
+}
+
+.tl-card::after {
+  content: "";
+  position: absolute;
+  top: 1.75rem;
+  width: 1.5rem;
+  height: 2px;
+  background: var(--rule);
+}
+
+.tl-left .tl-card {
+  grid-column: 1;
+}
+
+.tl-left .tl-card::after {
+  right: calc(-1.5rem - 1px);
+}
+
+.tl-left .tl-when {
+  grid-column: 3;
+}
+
+.tl-right .tl-card {
+  grid-column: 3;
+}
+
+.tl-right .tl-card::after {
+  left: calc(-1.5rem - 1px);
+}
+
+.tl-right .tl-when {
+  grid-column: 1;
+  text-align: right;
+}
+
+.tl-title {
+  margin: 0;
+  font: 600 1.0625rem/1.35 var(--display);
+  letter-spacing: -0.005em;
+}
+
+.tl-org {
+  margin: 0.2rem 0 0;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.tl-org a {
+  color: inherit;
+  text-decoration-color: var(--rule);
+}
+
+.tl-org a:hover {
+  color: var(--ink);
+  text-decoration-color: currentColor;
+}
+
+.tl-desc {
+  margin-top: 0.625rem;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.tl-desc p,
+.tl-desc ul,
+.tl-desc ol {
+  margin: 0 0 0.6em;
+}
+
+.tl-desc > :last-child {
+  margin-bottom: 0;
+}
+
+.tl-desc ul,
+.tl-desc ol {
+  padding-left: 1.1rem;
+}
+
+@media (max-width: 860px) {
+  .tl::before {
+    left: calc(var(--node) / 2);
+  }
+
+  .tl-item {
+    grid-template-columns: var(--node) minmax(0, 1fr);
+    column-gap: 1rem;
+    padding-bottom: 1.75rem;
+  }
+
+  .tl-node {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+
+  .tl-left .tl-when,
+  .tl-right .tl-when {
+    grid-column: 2;
+    grid-row: 1;
+    padding-top: 0.25rem;
+    text-align: left;
+  }
+
+  .tl-left .tl-card,
+  .tl-right .tl-card {
+    grid-column: 2;
+    grid-row: 2;
+    margin-top: 0.375rem;
+  }
+
+  .tl-card::after {
+    display: none;
+  }
+
+  .tl-filters {
+    justify-content: flex-start;
+  }
 }
 
 /* ── Footer ───────────────────────────────────────────────── */
@@ -995,7 +1261,6 @@ mark.me {
 
   .bench {
     margin-inline: -0.5rem;
-    border-radius: 8px;
   }
 
   .bench-panes {
@@ -1014,6 +1279,90 @@ mark.me {
 
   .bench-pane-head {
     flex-wrap: wrap;
+  }
+}
+
+/* ── Animations ───────────────────────────────────────────── */
+/* Site settings → Animations puts data-motion on <html>. theme.js adds .motion-ready before
+   first paint; site.js marks each part of the page with [data-reveal], adds .motion-live, and
+   adds .is-in to each part as it scrolls into view (with --reveal-delay when several parts
+   enter together). Without JavaScript, or for visitors who prefer reduced motion, nothing
+   is hidden. */
+
+.motion-ready:not(.motion-live) main {
+  opacity: 0;
+}
+
+[data-reveal] {
+  transition-property: opacity, transform, filter;
+  transition-duration: 0.8s;
+  transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0s);
+}
+
+[data-reveal]:not(.is-in) {
+  opacity: 0;
+}
+
+[data-motion="rise"] [data-reveal]:not(.is-in) {
+  transform: translateY(1.75rem);
+}
+
+/* Slide comes in from the margin side: 2.5rem, or less when the space beside the page
+   (its 1.5rem padding plus whatever the window has to spare) is narrower than that. */
+[data-motion="slide"] [data-reveal]:not(.is-in) {
+  transform: translateX(calc(-1 * clamp(1.5rem, 1.5rem + (100vw - var(--page)) / 2, 2.5rem)));
+}
+
+[data-motion="focus"] [data-reveal]:not(.is-in) {
+  transform: scale(0.985);
+  filter: blur(10px);
+}
+
+/* Timeline entries only fade as a whole, so the circle stays on the line. The circle pops in
+   and the card follows it: rising, growing out of the line, or coming into focus. */
+.timeline .tl-item[data-reveal]:not(.is-in) {
+  transform: none;
+  filter: none;
+}
+
+.tl-item[data-reveal] > * {
+  transition: inherit;
+}
+
+.tl-item[data-reveal] > .tl-card {
+  transition-delay: calc(var(--reveal-delay, 0s) + 0.12s);
+}
+
+:is([data-motion="rise"], [data-motion="slide"], [data-motion="focus"]) .tl-item[data-reveal]:not(.is-in) > .tl-node {
+  transform: scale(0.4);
+}
+
+[data-motion="rise"] .tl-item[data-reveal]:not(.is-in) > :is(.tl-card, .tl-when) {
+  transform: translateY(1.75rem);
+}
+
+[data-motion="slide"] .tl-left[data-reveal]:not(.is-in) > .tl-card {
+  transform: translateX(2.5rem);
+}
+
+[data-motion="slide"] .tl-right[data-reveal]:not(.is-in) > .tl-card {
+  transform: translateX(-2.5rem);
+}
+
+[data-motion="focus"] .tl-item[data-reveal]:not(.is-in) > .tl-card {
+  filter: blur(10px);
+}
+
+@media (max-width: 860px) {
+  /* Stay inside the page gutter so nothing is clipped by the screen edge. */
+  [data-motion="slide"] [data-reveal]:not(.is-in) {
+    transform: translateX(-1rem);
+  }
+
+  /* One column: every card sits to the right of the line. */
+  [data-motion="slide"] .tl-left[data-reveal]:not(.is-in) > .tl-card {
+    transform: translateX(-2.5rem);
   }
 }
 
@@ -1037,5 +1386,14 @@ mark.me {
   body {
     background: #fff;
     color: #000;
+  }
+
+  /* Parts the visitor never scrolled to are still hidden on screen; print them anyway. */
+  main,
+  [data-reveal],
+  .tl-item[data-reveal] > * {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
   }
 }

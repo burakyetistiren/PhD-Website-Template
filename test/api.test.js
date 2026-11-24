@@ -36,6 +36,7 @@ before(async () => {
     dockerBin: path.join(ROOT, 'tools', 'fake-docker.js'),
     runRateLimit: 3,
     runMaxInputBytes: 1024,
+    maxUploadBytes: 64 * 1024,
   };
   app = await createApp(config, { log: () => {} });
   const addr = await app.listen(0, '127.0.0.1');
@@ -55,7 +56,13 @@ test('public pages render from seed content', async () => {
   assert.equal((await call('GET', '/publications')).status, 200);
   assert.equal((await call('GET', '/demos/tidylint')).status, 200);
   assert.equal((await call('GET', '/contact')).status, 200);
+  const exp = await call('GET', '/experience');
+  assert.equal(exp.status, 200);
+  assert.match(exp.text, /class="tl-item tl-left tl-current"/);
+  assert.ok(exp.text.indexOf('data-timeline') < exp.text.indexOf('<h2>Skills</h2>'), 'timeline above the page text');
   assert.equal((await call('GET', '/missing-page')).status, 404);
+  assert.match((await call('GET', '/?theme=blueprint')).text, /data-style="blueprint"/);
+  assert.equal((await call('GET', '/assets/themes.css')).status, 200);
   const cv = await call('GET', '/cv');
   assert.equal(cv.status, 302);
   assert.equal(cv.headers.get('location'), '/media/cv.pdf');
@@ -137,6 +144,54 @@ test('media uploads are renamed safely and active types are sandboxed', async ()
   assert.match(served.headers.get('content-security-policy'), /sandbox/);
   assert.equal((await call('PUT', '/api/media/evil.html', { raw: '<b>' })).status, 422);
   assert.equal((await call('DELETE', '/api/media/My-Photo-2.svg')).status, 200);
+});
+
+test('media files answer byte-range requests so videos can seek', async () => {
+  assert.equal((await call('PUT', '/api/media/clip.mp4', { raw: '0123456789' })).status, 200);
+  const whole = await call('GET', '/media/clip.mp4');
+  assert.equal(whole.status, 200);
+  assert.equal(whole.headers.get('accept-ranges'), 'bytes');
+  const part = await call('GET', '/media/clip.mp4', { headers: { Range: 'bytes=2-5' } });
+  assert.equal(part.status, 206);
+  assert.equal(part.text, '2345');
+  assert.equal(part.headers.get('content-range'), 'bytes 2-5/10');
+  assert.equal(part.headers.get('content-type'), 'video/mp4');
+  assert.equal((await call('GET', '/media/clip.mp4', { headers: { Range: 'bytes=-3' } })).text, '789');
+  const past = await call('GET', '/media/clip.mp4', { headers: { Range: 'bytes=10-' } });
+  assert.equal(past.status, 416);
+  assert.equal(past.headers.get('content-range'), 'bytes */10');
+  const stale = await call('GET', '/media/clip.mp4', { headers: { Range: 'bytes=2-5', 'If-Range': '"old"' } });
+  assert.equal(stale.status, 200);
+  assert.equal(stale.text, '0123456789');
+  assert.equal((await call('DELETE', '/api/media/clip.mp4')).status, 200);
+});
+
+test('uploads stream to disk, and refused ones leave nothing behind', async () => {
+  const media = path.join(tmp, 'data', 'media');
+  const incoming = path.join(tmp, 'data', 'incoming');
+  const leftovers = () => [...fs.readdirSync(media).filter((f) => f.startsWith('big')), ...(fs.existsSync(incoming) ? fs.readdirSync(incoming) : [])];
+  const fits = Buffer.alloc(60 * 1024, 7);
+  const up = await call('PUT', '/api/media/big.mp4', { raw: fits });
+  assert.equal(up.status, 200);
+  assert.equal(up.json.size, fits.length);
+  assert.ok(fits.equals(fs.readFileSync(path.join(media, 'big.mp4'))));
+  // Declared too large: refused before reading the body.
+  const declared = await call('PUT', '/api/media/big2.mp4', { raw: Buffer.alloc(65 * 1024) });
+  assert.equal(declared.status, 413);
+  assert.equal(declared.json.error, 'Upload is larger than the 64 KB limit');
+  // No declared length: stopped as soon as it passes the limit.
+  let sent = 0;
+  const stream = new ReadableStream({
+    pull(c) {
+      if (sent++ < 10) c.enqueue(new Uint8Array(16 * 1024));
+      else c.close();
+    },
+  });
+  const chunked = await fetch(base + '/api/media/big3.mp4', { method: 'PUT', headers: { Authorization: `Bearer ${token}` }, body: stream, duplex: 'half' });
+  assert.equal(chunked.status, 413);
+  assert.equal((await call('PUT', '/api/media/big4.mp4', { raw: '' })).status, 422);
+  assert.deepEqual(leftovers(), ['big.mp4']);
+  assert.equal((await call('DELETE', '/api/media/big.mp4')).status, 200);
 });
 
 test('playground runs through the sandboxed runner with limits', async () => {
@@ -224,6 +279,7 @@ test('static export writes every page with the base path', async () => {
   assert.match(home, /href="\/site\/publications"/);
   assert.match(home, /src="\/site\/d\/shapeshift\/index\.html"[^>]* sandbox="allow-scripts/);
   assert.ok(fs.existsSync(path.join(out, 'demos', 'tidylint', 'index.html')));
+  assert.match(fs.readFileSync(path.join(out, 'experience', 'index.html'), 'utf8'), /data-timeline/);
   assert.match(fs.readFileSync(path.join(out, 'demos', 'tidylint', 'index.html'), 'utf8'), /can't run demos/);
   assert.ok(fs.existsSync(path.join(out, 'd', 'shapeshift', 'index.html')));
   assert.ok(fs.existsSync(path.join(out, 'media', 'cv.pdf')));
