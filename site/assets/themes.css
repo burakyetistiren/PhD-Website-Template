@@ -5,10 +5,10 @@
  * the owner's setting, or the system preference when JavaScript is off).
  * Pick a theme in Site settings, or preview one on any page with ?theme=<id>.
  */
-/* ── Blueprint: engineering-drawing blue with a faint grid and monospace headings. */
+/* ── Blueprint: engineering-drawing blue, a light drafting grid, monospace headings over a readable sans. */
 :root[data-style="blueprint"] {
   --display: "Azeret Mono", ui-monospace, Menlo, monospace;
-  --sans: "Azeret Mono", ui-monospace, Menlo, monospace;
+  --sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   --serif: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   --mono: "Azeret Mono", ui-monospace, Menlo, monospace;
   --radius-lg: 4px;
@@ -17,24 +17,24 @@
   --node-radius: 50%;
   --bg-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px), linear-gradient(var(--grid-major) 1px, transparent 1px), linear-gradient(90deg, var(--grid-major) 1px, transparent 1px);
   --bg-size: 24px 24px, 24px 24px, 120px 120px, 120px 120px;
-  --paper: #f2f6fb;
+  --paper: #f3f6fa;
   --paper-raised: #ffffff;
-  --card-bg: rgb(255 255 255 / 0.85);
-  --ink: #0f2f57;
-  --ink-soft: #36557d;
-  --ink-faint: #55708f;
-  --rule: #b9cbe2;
-  --accent: #0b5fbd;
+  --card-bg: var(--paper-raised);
+  --ink: #1b3350;
+  --ink-soft: #3f5875;
+  --ink-faint: #5a7089;
+  --rule: #c8d5e5;
+  --accent: #1a5fae;
   --link: var(--accent);
   --marker: #ffd43b;
-  --marker-ink: #0f2f57;
-  --grid: rgb(15 47 87 / 0.07);
-  --grid-major: rgb(15 47 87 / 0.14);
-  --bench-bg: #0f2f57;
-  --bench-panel: #133766;
-  --bench-line: #23497a;
-  --bench-ink: #e8f0fb;
-  --bench-dim: #93abcc;
+  --marker-ink: #1b3350;
+  --grid: rgb(27 51 80 / 0.04);
+  --grid-major: rgb(27 51 80 / 0.08);
+  --bench-bg: #1b3350;
+  --bench-panel: #203b5c;
+  --bench-line: #30507a;
+  --bench-ink: #e3eaf3;
+  --bench-dim: #9db0c8;
   --bench-err: #ffb199;
   --bench-ok: #9be0bd;
   color-scheme: light;
@@ -42,24 +42,24 @@
 
 :root[data-style="blueprint"][data-theme="dark"],
 :root[data-style="blueprint"][data-theme-pref="dark"] {
-  --paper: #123b6b;
-  --paper-raised: #174677;
-  --card-bg: rgb(255 255 255 / 0.05);
-  --ink: #eef5ff;
-  --ink-soft: #c3d5ee;
-  --ink-faint: #a3bde0;
-  --rule: rgb(214 230 255 / 0.32);
-  --accent: #86d5ff;
+  --paper: #1b3a5c;
+  --paper-raised: #22446a;
+  --card-bg: var(--paper-raised);
+  --ink: #dde6f1;
+  --ink-soft: #b3c4d9;
+  --ink-faint: #97adc7;
+  --rule: rgb(221 230 241 / 0.2);
+  --accent: #93cbef;
   --link: var(--accent);
-  --marker: #ffd43b;
-  --marker-ink: #0f2f57;
-  --grid: rgb(255 255 255 / 0.085);
-  --grid-major: rgb(255 255 255 / 0.17);
-  --bench-bg: #0a2647;
-  --bench-panel: #0d2d54;
-  --bench-line: #24497a;
-  --bench-ink: #eef5ff;
-  --bench-dim: #8fb0d9;
+  --marker: #f5cf4a;
+  --marker-ink: #1b3a5c;
+  --grid: rgb(255 255 255 / 0.035);
+  --grid-major: rgb(255 255 255 / 0.075);
+  --bench-bg: #132b45;
+  --bench-panel: #17324f;
+  --bench-line: #2a4a6d;
+  --bench-ink: #dde6f1;
+  --bench-dim: #94abc6;
   --bench-err: #ffb199;
   --bench-ok: #9be0bd;
   color-scheme: dark;
@@ -67,24 +67,24 @@
 
 @media (prefers-color-scheme: dark) {
   :root[data-style="blueprint"][data-theme-pref="auto"]:not([data-theme]) {
-    --paper: #123b6b;
-    --paper-raised: #174677;
-    --card-bg: rgb(255 255 255 / 0.05);
-    --ink: #eef5ff;
-    --ink-soft: #c3d5ee;
-    --ink-faint: #a3bde0;
-    --rule: rgb(214 230 255 / 0.32);
-    --accent: #86d5ff;
+    --paper: #1b3a5c;
+    --paper-raised: #22446a;
+    --card-bg: var(--paper-raised);
+    --ink: #dde6f1;
+    --ink-soft: #b3c4d9;
+    --ink-faint: #97adc7;
+    --rule: rgb(221 230 241 / 0.2);
+    --accent: #93cbef;
     --link: var(--accent);
-    --marker: #ffd43b;
-    --marker-ink: #0f2f57;
-    --grid: rgb(255 255 255 / 0.085);
-    --grid-major: rgb(255 255 255 / 0.17);
-    --bench-bg: #0a2647;
-    --bench-panel: #0d2d54;
-    --bench-line: #24497a;
-    --bench-ink: #eef5ff;
-    --bench-dim: #8fb0d9;
+    --marker: #f5cf4a;
+    --marker-ink: #1b3a5c;
+    --grid: rgb(255 255 255 / 0.035);
+    --grid-major: rgb(255 255 255 / 0.075);
+    --bench-bg: #132b45;
+    --bench-panel: #17324f;
+    --bench-line: #2a4a6d;
+    --bench-ink: #dde6f1;
+    --bench-dim: #94abc6;
     --bench-err: #ffb199;
     --bench-ok: #9be0bd;
     color-scheme: dark;
