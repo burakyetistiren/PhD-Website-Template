@@ -71,8 +71,8 @@ export const SINGLETONS = {
       { key: 'siteTitle', type: 'string', label: 'Site title', max: 120, help: 'Shown in browser tabs. Defaults to your name.' },
       { key: 'description', type: 'text', label: 'Search engine description', max: 300 },
       {
-        key: 'siteTheme', type: 'select', label: 'Theme', default: DEFAULT_THEME,
-        help: 'Colors, typefaces and shapes for the whole site. Each theme has a light and a dark version.',
+        key: 'siteTheme', type: 'select', label: 'Default theme', default: DEFAULT_THEME,
+        help: 'What visitors see first. They can switch to any theme from the palette menu at the top of every page, and their choice is remembered in their browser.',
         options: Object.entries(THEMES).map(([value, t]) => ({ value, label: `${t.label}: ${t.description}` })),
       },
       {

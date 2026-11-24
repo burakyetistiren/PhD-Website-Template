@@ -181,12 +181,16 @@ ${photo ? html`<meta property="og:image" content="${photo}">` : ''}
 ${settings.webFonts
     ? html`<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="${themeFontsUrl(style)}">`
+<link rel="stylesheet" id="theme-font" href="${themeFontsUrl(style)}">`
     : ''}
 <link rel="stylesheet" href="${href(ctx, '/assets/site.css')}${v}">
 <link rel="stylesheet" href="${href(ctx, '/assets/themes.css')}${v}">
 ${accentCss ? html`<style>${raw(accentCss)}</style>` : ''}
 ${settings.pageTransitions ? raw(`<style>${PAGE_TRANSITION_CSS}</style>`) : ''}
+<script type="application/json" id="site-themes">${jsonForScript({
+    ids: Object.keys(THEMES),
+    fonts: settings.webFonts ? Object.fromEntries(Object.keys(THEMES).map((id) => [id, themeFontsUrl(id)])) : null,
+  })}</script>
 <script src="${href(ctx, '/assets/theme.js')}${v}"></script>
 <script type="application/ld+json">${jsonForScript(person)}</script>
 </head>
@@ -197,6 +201,12 @@ ${settings.pageTransitions ? raw(`<style>${PAGE_TRANSITION_CSS}</style>`) : ''}
   <a class="wordmark" href="${href(ctx, '/')}">${profile.name}</a>
   <nav class="nav" aria-label="Main">
     <ul>${nav.map((l) => html`<li><a href="${href(ctx, l.url)}"${isCurrent(l.url) ? raw(' aria-current="page"') : ''}${ext(l.url)}>${l.label}</a></li>`)}</ul>
+    <details class="theme-picker" data-theme-picker>
+      <summary class="theme-toggle" aria-label="Choose a theme" title="Theme">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3a9 9 0 0 0 0 18c1 0 1.7-.8 1.7-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.7 1.7-1.7h2.1A4.5 4.5 0 0 0 21 10.7C21 6.4 17 3 12 3Z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="7.6" cy="11.2" r="1.3" fill="currentColor"/><circle cx="10.4" cy="7.4" r="1.3" fill="currentColor"/><circle cx="15" cy="7.6" r="1.3" fill="currentColor"/></svg>
+      </summary>
+      <div class="theme-menu" role="menu" aria-label="Themes">${Object.entries(THEMES).map(([id, t]) => html`<a class="theme-option" role="menuitemradio" aria-checked="${id === style}" data-theme-choice="${id}" href="${href(ctx, path || '/')}?theme=${id}"><span class="theme-swatch" aria-hidden="true">${t.swatch.map((c) => html`<i style="background:${c}"></i>`)}</span>${t.label}</a>`)}</div>
+    </details>
     ${settings.theme === 'auto'
     ? html`<button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch between light and dark">
       <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z" fill="currentColor"/></svg>

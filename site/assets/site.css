@@ -216,6 +216,81 @@ img {
   border-color: var(--ink-faint);
 }
 
+/* Theme picker: a palette button opening a small menu of themes with swatches. */
+.theme-picker {
+  position: relative;
+}
+
+.theme-picker > summary {
+  list-style: none;
+}
+
+.theme-picker > summary::-webkit-details-marker {
+  display: none;
+}
+
+.theme-picker[open] > summary {
+  color: var(--ink);
+  border-color: var(--ink-faint);
+}
+
+.theme-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 20;
+  display: grid;
+  gap: 0.125rem;
+  min-width: 12.5rem;
+  padding: 0.375rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  background: var(--paper-raised);
+  box-shadow: 0 18px 40px -20px rgb(0 0 0 / 0.45);
+}
+
+.nav .theme-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.625rem;
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font: 500 0.9375rem/1.2 var(--sans);
+  text-decoration: none;
+}
+
+.nav .theme-option:hover,
+.nav .theme-option:focus-visible {
+  background: var(--paper);
+}
+
+.nav .theme-option[aria-checked="true"] {
+  font-weight: 650;
+}
+
+.nav .theme-option[aria-checked="true"]::after {
+  content: "\2713";
+  margin-left: auto;
+  color: var(--link);
+}
+
+.theme-swatch {
+  display: inline-flex;
+  flex: none;
+}
+
+.theme-swatch i {
+  width: 0.875rem;
+  height: 0.875rem;
+  border: 1px solid rgb(0 0 0 / 0.18);
+  border-radius: 50%;
+}
+
+.theme-swatch i + i {
+  margin-left: -0.3rem;
+}
+
 /* ── Intro (home) ─────────────────────────────────────────── */
 
 .intro {

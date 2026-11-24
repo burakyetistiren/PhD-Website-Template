@@ -13,6 +13,48 @@ for (const button of document.querySelectorAll('[data-theme-toggle]')) {
   });
 }
 
+// Theme picker: the visitor's choice is remembered in this browser and used on every page.
+const picker = document.querySelector('[data-theme-picker]');
+if (picker) {
+  let themes = {};
+  try {
+    themes = JSON.parse(document.getElementById('site-themes').textContent);
+  } catch {}
+  const markActive = (id) => {
+    for (const o of picker.querySelectorAll('[data-theme-choice]')) o.setAttribute('aria-checked', String(o.dataset.themeChoice === id));
+  };
+  markActive(document.documentElement.dataset.style);
+  picker.addEventListener('click', (event) => {
+    const option = event.target.closest('[data-theme-choice]');
+    if (!option) return;
+    event.preventDefault();
+    const id = option.dataset.themeChoice;
+    document.documentElement.dataset.style = id;
+    const font = document.getElementById('theme-font');
+    if (font && themes.fonts?.[id]) font.href = themes.fonts[id];
+    try {
+      localStorage.setItem('site-theme', id);
+    } catch {}
+    markActive(id);
+    picker.open = false;
+    // A ?theme= preview in the address would override the choice on reload, so drop it.
+    const url = new URL(location.href);
+    if (url.searchParams.has('theme')) {
+      url.searchParams.delete('theme');
+      history.replaceState(null, '', url);
+    }
+  });
+  document.addEventListener('click', (event) => {
+    if (picker.open && !picker.contains(event.target)) picker.open = false;
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && picker.open) {
+      picker.open = false;
+      picker.querySelector('summary').focus();
+    }
+  });
+}
+
 // Copy BibTeX
 document.addEventListener('click', async (event) => {
   const button = event.target.closest('[data-copy]');

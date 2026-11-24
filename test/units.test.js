@@ -94,6 +94,11 @@ test('themes: setting, preview override, fonts and custom link color', async () 
   assert.match(riso, /<html lang="en" data-theme-pref="auto" data-style="riso"[ >]/);
   assert.match(riso, /family=Young\+Serif/);
   assert.match(riso, /\/assets\/themes\.css/);
+  assert.match(riso, /<details class="theme-picker" data-theme-picker>/);
+  assert.equal((riso.match(/data-theme-choice="/g) || []).length, Object.keys(THEMES).length, 'one menu option per theme');
+  assert.match(riso, /aria-checked="true" data-theme-choice="riso" href="\/\?theme=riso"/);
+  assert.match(riso, /<script type="application\/json" id="site-themes">\{"ids":\["paper"/);
+  assert.ok(riso.indexOf('id="site-themes"') < riso.indexOf('/assets/theme.js'), 'theme data comes before theme.js reads it');
   assert.ok(!riso.includes('--accent:'), 'no link-color override unless one is set');
   assert.match(renderRoute('/', base, { previewTheme: 'midnight' }).html, /data-style="midnight"/);
   assert.match(renderRoute('/', base, { previewTheme: '"><script>' }).html, /data-style="riso"/, 'unknown previews are ignored');
