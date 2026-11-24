@@ -1,0 +1,434 @@
+/*
+ * The sensemaking diagram and tool sections on custom pages (markup: site/sensemaking.js).
+ * Colors, type and shapes come from the theme tokens in site.css and themes.css, so the
+ * diagram follows every theme and dark mode. Linked from the page only when it is used.
+ */
+
+.sm {
+  margin-top: 3rem;
+}
+
+.sm + .prose,
+.sm-tool + .prose {
+  margin-top: 3.5rem;
+}
+
+.sm-figure {
+  margin: 0;
+}
+
+/* On narrow screens the drawing keeps a readable size and scrolls sideways inside its frame. */
+.sm-canvas {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.sm-svg {
+  display: block;
+  width: 100%;
+  min-width: 40rem;
+  height: auto;
+  font-family: var(--sans);
+}
+
+.sm-svg a {
+  cursor: pointer;
+}
+
+.sm-svg a:focus {
+  outline: none;
+}
+
+/* Representations */
+.sm-node rect {
+  fill: var(--card-bg);
+  stroke: var(--ink-faint);
+  stroke-width: 1.25;
+  transition: fill 0.15s, stroke 0.15s;
+}
+
+.sm-node[data-loop="sensemaking"] rect {
+  fill: color-mix(in oklab, var(--accent) 13%, var(--card-bg));
+  stroke: color-mix(in oklab, var(--accent) 65%, var(--ink-faint));
+}
+
+.sm-node-label {
+  fill: var(--ink);
+  font: 600 15px var(--display);
+}
+
+.sm-dots circle {
+  fill: var(--link);
+}
+
+.sm-node:hover rect,
+.sm-node:focus-visible rect {
+  stroke: var(--link);
+  stroke-width: 2.25;
+}
+
+.sm-node.is-current rect {
+  fill: var(--link);
+  stroke: var(--link);
+}
+
+.sm-node.is-current .sm-node-label,
+.sm-node.is-current .sm-dots circle {
+  fill: var(--paper);
+}
+
+/* Processes */
+.sm-line {
+  fill: none;
+  stroke: var(--ink-faint);
+  stroke-width: 1.5;
+  transition: stroke 0.15s;
+}
+
+.sm-proc--down .sm-line {
+  stroke-dasharray: 5 4;
+}
+
+.sm-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 20;
+  pointer-events: stroke;
+}
+
+.sm-proc-label {
+  fill: var(--ink-soft);
+  font: 500 13.5px var(--sans);
+  transition: fill 0.15s;
+}
+
+.sm-proc.has-notes .sm-proc-label {
+  fill: var(--ink);
+  font-weight: 650;
+}
+
+.sm-proc-count {
+  fill: var(--link);
+}
+
+.sm-proc:hover .sm-line,
+.sm-proc:focus-visible .sm-line,
+.sm-proc.is-current .sm-line {
+  stroke: var(--link);
+}
+
+.sm-proc:hover .sm-proc-label,
+.sm-proc:focus-visible .sm-proc-label,
+.sm-proc.is-current .sm-proc-label {
+  fill: var(--link);
+}
+
+.sm-proc:focus-visible .sm-proc-label,
+.sm-node:focus-visible .sm-node-label {
+  text-decoration: underline;
+}
+
+.sm-proc.is-current .sm-line {
+  stroke-width: 2.75;
+}
+
+.sm-proc.is-current .sm-proc-label {
+  font-weight: 700;
+}
+
+/* Key and citation under the drawing */
+.sm-caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1.25rem;
+  margin-top: 0.75rem;
+  font: 500 0.8125rem/1.5 var(--sans);
+  color: var(--ink-soft);
+}
+
+.sm-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.sm-key-swatch {
+  width: 0.95rem;
+  height: 0.7rem;
+  border: 1.25px solid var(--ink-faint);
+  border-radius: 3px;
+  background: var(--card-bg);
+}
+
+.sm-key-swatch[data-loop="sensemaking"] {
+  border-color: color-mix(in oklab, var(--accent) 65%, var(--ink-faint));
+  background: color-mix(in oklab, var(--accent) 13%, var(--card-bg));
+}
+
+.sm-key-line {
+  width: 1.5rem;
+  border-top: 1.5px solid var(--ink-faint);
+}
+
+.sm-key-line--down {
+  border-top-style: dashed;
+}
+
+.sm-cite {
+  flex-basis: 100%;
+  color: var(--ink-faint);
+  font-weight: 400;
+  font-size: 0.78rem;
+}
+
+/* Stage panels. Without JavaScript they are all listed; sensemaking.js shows one at a time. */
+.sm-panels {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.sm-panel {
+  padding: 1.25rem 1.5rem 1rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  background: var(--card-bg);
+  scroll-margin-top: 1.5rem;
+}
+
+.sm-panel[hidden] {
+  display: none;
+}
+
+.sm-panel-kind {
+  margin: 0;
+  font: 600 0.75rem/1.4 var(--sans);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.sm-panel-title {
+  margin: 0.25rem 0 0;
+  font: 600 1.375rem/1.25 var(--display);
+}
+
+.sm-panel-route {
+  margin-left: 0.375rem;
+  font: 500 0.9375rem var(--sans);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.sm-panel-about {
+  max-width: var(--measure);
+  margin: 0.375rem 0 0;
+  color: var(--ink-soft);
+}
+
+.sm-panel-empty {
+  margin: 1rem 0 0;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+.sm-notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 1rem 1.75rem;
+  margin-top: 1.125rem;
+}
+
+.sm-note {
+  padding-top: 0.75rem;
+  border-top: 2px solid var(--rule);
+}
+
+.sm-note-tool {
+  margin: 0;
+  font: 650 1rem/1.3 var(--sans);
+}
+
+.sm-note-tool a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.sm-note-tool a:hover {
+  color: var(--link);
+}
+
+.sm-note-text {
+  margin-top: 0.375rem;
+}
+
+.sm-note-text > * {
+  margin: 0 0 0.5rem;
+}
+
+.sm-note-fig {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  font: 0.8125rem/1.4 var(--sans);
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+
+.sm-note-fig img {
+  flex: none;
+  width: 6.5rem;
+  height: 4.25rem;
+  object-fit: cover;
+  object-position: top left;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+
+.sm-note-fig:hover span {
+  color: var(--link);
+  text-decoration: underline;
+}
+
+.sm-note-links {
+  margin-top: 0.625rem;
+}
+
+.sm-play {
+  white-space: nowrap;
+}
+
+.sm-step {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--rule);
+  font: 500 0.875rem/1.4 var(--sans);
+}
+
+.sm-step a[rel="next"] {
+  margin-left: auto;
+  text-align: right;
+}
+
+/* One section per tool */
+.sm-tool {
+  max-width: 48rem;
+  margin: 4.5rem 0 0 var(--indent);
+  scroll-margin-top: 1.5rem;
+}
+
+.sm-tool-title {
+  margin: 0;
+  font: 600 1.75rem/1.2 var(--display);
+  letter-spacing: -0.015em;
+}
+
+.sm-tool-venue {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--pill);
+  background: color-mix(in oklab, var(--accent) 13%, var(--card-bg));
+  color: var(--ink-soft);
+  font: 600 0.8125rem/1 var(--sans);
+  letter-spacing: 0;
+  vertical-align: 0.3em;
+}
+
+.sm-tool-tagline {
+  margin: 0.375rem 0 0;
+  color: var(--ink-soft);
+  font-size: 1.0625rem;
+}
+
+.sm-tool > .prose {
+  margin-top: 1rem;
+}
+
+.sm-video {
+  margin-top: 1.25rem;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  background: #000;
+  scroll-margin-top: 1.5rem;
+  transition: box-shadow 0.3s;
+}
+
+.sm-video video {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sm-video--embed {
+  aspect-ratio: 16 / 9;
+}
+
+.sm-video--embed iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.sm-video.is-cued {
+  box-shadow: 0 0 0 3px var(--link);
+}
+
+.sm-figs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.sm-fig {
+  margin: 0;
+  scroll-margin-top: 1.5rem;
+}
+
+/* A paper's first figure is usually its overview: give it the full width. */
+.sm-fig:first-child {
+  grid-column: 1 / -1;
+}
+
+.sm-fig img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+
+.sm-fig:target img {
+  outline: 3px solid var(--link);
+  outline-offset: 3px;
+}
+
+.sm-fig figcaption {
+  margin-top: 0.5rem;
+  font: 0.875rem/1.45 var(--sans);
+  color: var(--ink-soft);
+}
+
+.sm-fig-n {
+  font-weight: 650;
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sm-node rect,
+  .sm-line,
+  .sm-proc-label,
+  .sm-video {
+    transition: none;
+  }
+}

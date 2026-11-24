@@ -9,6 +9,7 @@ import { html, raw, jsonForScript } from './html.js';
 import { renderMarkdown, renderInline, markdownToText, safeUrl, escapeHtml } from '../shared/markdown.js';
 import { SINGLETONS, withDefaults } from '../server/schema.js';
 import { THEMES, resolveTheme, themeFontsUrl } from './themes.js';
+import { renderSensemaking } from './sensemaking.js';
 
 // Values of Site settings → Animations that animate (everything except "none").
 const MOTION_STYLES = new Set(['fade', 'rise', 'slide', 'focus']);
@@ -612,8 +613,14 @@ function customPage(content, ctx, page) {
   const where = page.timeline || 'none';
   const tl = where !== 'none' && content.experience?.length ? experienceTimeline(ctx, content.experience) : '';
   const text = page.body ? html`<div class="prose">${md(ctx, page.body)}</div>` : '';
-  const body = html`${pageHeader(page.title)}${where === 'top' ? tl : ''}${text}${where === 'bottom' ? tl : ''}`;
-  return layout(content, ctx, { title: page.title, description: markdownToText(page.body || '').slice(0, 200), body, path: `/${page.slug}`, wide: Boolean(tl) });
+  // Sensemaking diagram (site/sensemaking.js): the diagram, then one section per tool.
+  const smWhere = page.sensemaking || 'none';
+  const sm = smWhere !== 'none' ? renderSensemaking(page, content, {
+    href: (u) => href(ctx, u), a: (u, label, attrs) => a(ctx, u, label, attrs), md: (src, opts) => md(ctx, src, opts), ext, assetVersion: ctx.assetVersion,
+  }) : null;
+  const smParts = sm ? html`${sm.diagram}${sm.tools}` : '';
+  const body = html`${pageHeader(page.title)}${where === 'top' ? tl : ''}${smWhere === 'top' ? smParts : ''}${text}${smWhere === 'bottom' ? smParts : ''}${where === 'bottom' ? tl : ''}`;
+  return layout(content, ctx, { title: page.title, description: markdownToText(page.body || '').slice(0, 200), body, path: `/${page.slug}`, wide: Boolean(tl || sm) });
 }
 
 export function notFoundPage(content, ctx) {

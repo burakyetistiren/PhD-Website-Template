@@ -1,4 +1,5 @@
 import { THEMES, DEFAULT_THEME } from '../site/themes.js';
+import { STAGE_OPTIONS } from '../site/sensemaking.js';
 
 /**
  * The content schema. This one file drives three things:
@@ -358,6 +359,46 @@ export const COLLECTIONS = {
         ],
       },
       { key: 'body', type: 'markdown', label: 'Content', rows: 16 },
+      {
+        key: 'sensemaking', type: 'select', label: 'Sensemaking diagram', default: 'none',
+        help: "An interactive drawing of Pirolli and Card's sensemaking loop. Visitors click a stage to see what each tool below does there; each tool also gets its own section with its video and figures.",
+        options: [
+          { value: 'none', label: "Don't show" },
+          { value: 'top', label: 'Show above the text' },
+          { value: 'bottom', label: 'Show below the text' },
+        ],
+      },
+      {
+        key: 'tools', type: 'list', label: 'Tools on the diagram', itemLabel: 'tool', showWhen: { sensemaking: ['top', 'bottom'] },
+        fields: [
+          { key: 'name', type: 'string', label: 'Name', required: true, max: 80 },
+          { key: 'venue', type: 'string', label: 'Venue', max: 80, help: 'For example: ICSE 2026' },
+          { key: 'tagline', type: 'string', label: 'One-line description', max: 240 },
+          { key: 'summary', type: 'markdown', label: 'Summary', rows: 4 },
+          { key: 'links', type: 'list', label: 'Links', itemLabel: 'link', fields: link, help: 'The paper, the artifact, the source code…' },
+          { key: 'demo', type: 'ref', collection: 'demos', label: 'Demo' },
+          { key: 'video', type: 'media', label: 'Video', accept: 'video/*', help: 'An MP4 or WebM file, or a YouTube or Vimeo address. Notes can start it at a given moment.' },
+          { key: 'poster', type: 'media', label: 'Video still', accept: 'image/*', help: 'Shown before a video file plays.' },
+          {
+            key: 'figures', type: 'list', label: 'Figures', itemLabel: 'figure', help: 'Numbered in this order. Notes refer to them by number.',
+            fields: [
+              { key: 'image', type: 'media', label: 'Image', required: true, accept: 'image/*' },
+              { key: 'caption', type: 'string', label: 'Caption', max: 400 },
+              { key: 'alt', type: 'string', label: 'Description for screen readers', max: 400, help: 'Defaults to the caption.' },
+            ],
+          },
+          {
+            key: 'stages', type: 'list', label: 'Notes on the diagram', itemLabel: 'note', help: 'What this tool does at a stage of the loop. Shown when a visitor picks that stage.',
+            fields: [
+              { key: 'stage', type: 'select', label: 'Stage', required: true, options: STAGE_OPTIONS },
+              { key: 'text', type: 'markdown', label: 'What the tool does here', required: true, max: 2000, rows: 3 },
+              { key: 'figure', type: 'number', label: 'Figure number', min: 1, max: 200, help: 'Shows that figure next to the note.' },
+              { key: 'videoAt', type: 'string', label: 'Video moment', max: 9, help: 'Like 1:25. Adds a button that plays the video from there.' },
+              { key: 'tryUrl', type: 'url', label: 'Try-it link', help: 'Optional. Opens the demo at this step.' },
+            ],
+          },
+        ],
+      },
     ],
   },
 };

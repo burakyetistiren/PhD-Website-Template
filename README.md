@@ -90,6 +90,14 @@ No Docker? Playground demos say they can't run, and everything else keeps workin
 
 Paste the address of a Hugging Face Space, Streamlit app, StackBlitz project, YouTube video or asciinema recording.
 
+### A sensemaking page for several tools
+
+If your tools help people make sense of something (analyzer warnings, logs, data), a page can show them on an interactive drawing of Pirolli and Card's sensemaking loop. Visitors click a stage, such as *Shoebox*, *Schematize* or *Hypotheses*, and see what each tool does there. Each tool then gets its own section with its links, video and figures.
+
+In **Pages**, set **Sensemaking diagram** to above or below the text and add your **Tools on the diagram**. For each tool, add **Notes on the diagram**: pick a stage and say what the tool does there. A note can also show one of the tool's figures (by number), a **Play from 1:25** button that starts the tool's video at that moment, and a **Try this step** link. Videos can be MP4 or WebM files from the media library (they can be seeked; the server supports range requests) or YouTube and Vimeo addresses.
+
+The page works without JavaScript: every stage and its notes are listed under the drawing. On phones the drawing scrolls sideways inside its frame. The drawing is in `site/sensemaking.js`, with `site/assets/sensemaking.css` and `sensemaking.js`.
+
 ## Customizing
 
 - **Themes**: pick one in **Site settings**: Paper, Blueprint, Swiss, Riso, Midnight or Garden. Each changes colors, typefaces, corners and background, and has a light and a dark version. Preview any theme on any page by adding `?theme=riso` (or another name) to the address; the Site settings page has buttons for this.

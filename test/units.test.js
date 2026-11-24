@@ -211,3 +211,84 @@ test('uploads default to a 1 GB limit', () => {
   assert.equal(formatBytes(1.5 * 1024 * 1024 * 1024), '1.5 GB');
   assert.equal(formatBytes(50 * 1024 * 1024), '50 MB');
 });
+
+test('sensemaking: stages, moments and video links', async () => {
+  const { STAGES, STAGE_ORDER, STAGE_OPTIONS, parseMoment, formatMoment, videoSource } = await import('../site/sensemaking.js');
+  assert.equal(STAGES.size, 16);
+  assert.equal(new Set(STAGE_ORDER).size, 16, 'every stage appears once in the walk-through');
+  assert.deepEqual([STAGE_ORDER[0], STAGE_ORDER[1], STAGE_ORDER.at(-1)], ['external-data', 'search-filter', 'search-information']);
+  assert.deepEqual(STAGE_OPTIONS.map((o) => o.value), STAGE_ORDER);
+  assert.equal(STAGE_OPTIONS.find((o) => o.value === 'schematize').label, 'Schematize (Evidence file → Schema)');
+
+  assert.equal(parseMoment('1:25'), 85);
+  assert.equal(parseMoment('01:02:03'), 3723);
+  assert.equal(parseMoment(' 90 '), 90);
+  assert.equal(parseMoment('1:75'), null);
+  assert.equal(parseMoment('soon'), null);
+  assert.equal(parseMoment(undefined), null);
+  assert.equal(formatMoment(85), '1:25');
+  assert.equal(formatMoment(3723), '1:02:03');
+
+  const yt = videoSource('https://www.youtube.com/watch?v=abcdefghijk&list=x');
+  assert.equal(yt.type, 'youtube');
+  assert.equal(yt.src, 'https://www.youtube-nocookie.com/embed/abcdefghijk?rel=0');
+  assert.equal(yt.at(85), 'https://www.youtube.com/watch?v=abcdefghijk&t=85s');
+  assert.equal(videoSource('https://youtu.be/abcdefghijk').type, 'youtube');
+  assert.equal(videoSource('https://vimeo.com/123456').src, 'https://player.vimeo.com/video/123456');
+  assert.deepEqual([videoSource('/media/tour.mp4').type, videoSource('/media/tour.mp4').at(12)], ['file', '/media/tour.mp4#t=12']);
+});
+
+test('sensemaking: page diagram, notes, tools and validation', async () => {
+  const { renderRoute } = await import('../site/render.js');
+  const page = {
+    id: 'p1', title: 'How my tools help', slug: 'loop', sensemaking: 'bottom', body: 'Intro text.',
+    tools: [
+      {
+        name: 'Tracer', venue: 'Example Conf 2026', video: 'https://youtu.be/abcdefghijk',
+        figures: [{ image: '/media/overview.png', caption: 'Overview' }, { image: '/media/graph.png', caption: 'The graph' }],
+        stages: [
+          { stage: 'schema', text: 'Draws a graph.', figure: 2, videoAt: '1:25' },
+          { stage: 'search-filter', text: 'Asks a question.', tryUrl: 'https://example.org/try' },
+        ],
+      },
+      { name: 'Sifter <b>', video: '/media/sifter.mp4', stages: [{ stage: 'schema', text: 'Learns *rules*.', videoAt: 'later' }] },
+      { name: 'Tracer', stages: [] },
+    ],
+  };
+  const content = normalizeContent({ profile: { name: 'Sam Doe' }, pages: [page] });
+  const out = renderRoute('/loop', content, {}).html;
+
+  assert.equal((out.match(/<a class="sm-(?:node|proc)[^"]*" href="#sm-/g) || []).length, 16, 'one link per stage in the drawing');
+  assert.equal((out.match(/data-sm-panel=/g) || []).length, 16, 'every stage has a panel, listed without JavaScript');
+  assert.match(out, /data-sm-start="search-filter"/, 'starts on the first stage with notes, in walk-through order');
+  assert.match(out, /class="sm-node has-notes" href="#sm-schema"/);
+  assert.match(out, /<title>Schema, 2 notes<\/title>/);
+  assert.ok(out.indexOf('Intro text.') < out.indexOf('data-sm '), 'shown below the text');
+  assert.match(out, /href="\/assets\/sensemaking\.css/);
+  assert.match(out, /src="\/assets\/sensemaking\.js/);
+
+  const schema = out.slice(out.indexOf('id="sm-schema"'), out.indexOf('id="sm-build-case"'));
+  assert.match(schema, /<a href="#tool-tracer">Tracer<\/a>/);
+  assert.match(schema, /<a class="sm-note-fig" href="#tool-tracer-fig-2"><img src="\/media\/graph\.png"/);
+  assert.match(schema, /href="https:\/\/www\.youtube\.com\/watch\?v=abcdefghijk&amp;t=85s" data-sm-seek="tool-tracer" data-sm-at="85"/);
+  assert.match(schema, /Learns <em>rules<\/em>/);
+  assert.equal((schema.match(/data-sm-seek/g) || []).length, 1, 'no play link for a moment that does not parse');
+  assert.match(out, /href="https:\/\/example\.org\/try"[^>]*>Try this step</);
+
+  assert.match(out, /<iframe id="tool-tracer-video" data-sm-video="youtube" src="https:\/\/www\.youtube-nocookie\.com\/embed\/abcdefghijk\?rel=0"/);
+  assert.match(out, /<video id="tool-sifter-b-video" data-sm-video="file"[^>]*><source src="\/media\/sifter\.mp4">/);
+  assert.match(out, /id="tool-tracer-2"/, 'tools with the same name get distinct anchors');
+  assert.match(out, /Sifter &lt;b&gt;/);
+  assert.ok(!out.includes('Sifter <b>'), 'tool names are escaped');
+  assert.match(out, /<figure class="sm-fig" id="tool-tracer-fig-1">/);
+  assert.match(out, /<span class="sm-fig-n">Figure 2\.<\/span> The graph/);
+
+  const plain = renderRoute('/loop', normalizeContent({ profile: { name: 'Sam Doe' }, pages: [{ ...page, sensemaking: 'none' }] }), {}).html;
+  assert.ok(!plain.includes('data-sm'), 'nothing is shown when the diagram is off');
+  assert.ok(!plain.includes('sensemaking.css'));
+
+  const bad = validateItem('pages', { title: 'T', slug: 't', sensemaking: 'top', tools: [{ name: 'X', stages: [{ stage: 'nowhere', text: 'Hi' }, { stage: 'schema' }] }] });
+  assert.match(bad.errors['tools.0.stages.0.stage'], /listed options/);
+  assert.match(bad.errors['tools.0.stages.1.text'], /required/);
+  assert.deepEqual(validateItem('pages', page, []).errors, {});
+});

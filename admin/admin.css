@@ -587,11 +587,13 @@ select.input {
 
 .list-item .form--compact {
   grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  align-items: start;
 }
 
 .list-item .field--code,
 .list-item .field--markdown,
-.list-item .field--text {
+.list-item .field--text,
+.list-item .field--list {
   grid-column: 1 / -1;
 }
 
