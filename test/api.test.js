@@ -53,6 +53,7 @@ test('public pages render from seed content', async () => {
   assert.equal(home.status, 200);
   assert.match(home.text, /Robin Park/);
   assert.match(home.headers.get('content-security-policy'), /script-src 'self'/);
+  assert.match(home.headers.get('content-security-policy'), /frame-src 'self' https: http:\/\/localhost:\*/, 'tools running on this machine can be embedded');
   assert.equal((await call('GET', '/publications')).status, 200);
   assert.equal((await call('GET', '/demos/tidylint')).status, 200);
   assert.equal((await call('GET', '/contact')).status, 200);

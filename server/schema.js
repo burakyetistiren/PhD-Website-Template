@@ -298,6 +298,15 @@ export const COLLECTIONS = {
       { key: 'repo', type: 'url', label: 'Source code' },
       { key: 'tags', type: 'tags', label: 'Tags' },
       { key: 'description', type: 'markdown', label: 'About this demo' },
+      {
+        key: 'steps', type: 'list', label: 'Walkthrough', itemLabel: 'step',
+        help: 'Numbered steps shown beside the demo for visitors to follow. Step 2 has the address /demos/<address>#step-2, so other pages (like a sensemaking diagram) can link straight to it.',
+        fields: [
+          { key: 'title', type: 'string', label: 'Step', required: true, max: 140 },
+          { key: 'text', type: 'markdown', label: 'What to do and what to notice', rows: 3, max: 3000 },
+          { key: 'image', type: 'media', label: 'Screenshot', accept: 'image/*' },
+        ],
+      },
     ],
   },
   talks: {

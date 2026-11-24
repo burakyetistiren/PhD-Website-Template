@@ -1027,6 +1027,109 @@ mark.me {
   font-size: 1.0625rem;
 }
 
+/* ── Demo walkthrough: numbered steps beside the live demo ── */
+
+.walk {
+  /* Wider than the page column, centred on the screen, so a full web app has room beside the steps. */
+  --walk-width: min(100vw - 3rem, 92rem);
+  display: grid;
+  grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+  grid-template-areas: "steps demo";
+  gap: 1.75rem;
+  align-items: start;
+  width: var(--walk-width);
+  margin-left: calc(50% - var(--walk-width) / 2);
+}
+
+.walk-demo {
+  grid-area: demo;
+  position: sticky;
+  top: 1rem;
+}
+
+.walk-steps {
+  grid-area: steps;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.walk-step {
+  padding: 1rem 0 1.25rem 0.875rem;
+  border-left: 3px solid transparent;
+  border-top: 1px solid var(--rule);
+}
+
+.walk-step:first-child {
+  border-top: 0;
+  padding-top: 0.25rem;
+}
+
+.walk-step:target {
+  border-left-color: var(--accent);
+}
+
+.walk-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.625rem;
+  margin: 0;
+  font: 600 1.0625rem/1.35 var(--display);
+}
+
+.walk-n {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 2px solid var(--accent);
+  border-radius: var(--node-radius);
+  color: var(--ink);
+  font: 650 0.875rem/1 var(--sans);
+  text-decoration: none;
+}
+
+.walk-text {
+  margin: 0.5rem 0 0 2.375rem;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.walk-text p,
+.walk-text ul,
+.walk-text ol {
+  margin: 0 0 0.6em;
+}
+
+.walk-text > :last-child {
+  margin-bottom: 0;
+}
+
+.walk-shot {
+  display: block;
+  margin: 0.75rem 0 0 2.375rem;
+}
+
+.walk-shot img {
+  display: block;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+}
+
+@media (max-width: 960px) {
+  .walk {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "demo" "steps";
+    width: auto;
+    margin-left: 0;
+  }
+
+  .walk-demo {
+    position: static;
+  }
+}
+
 /* ── Experience timeline ──────────────────────────────────── */
 /* A centre line with one circle per entry; cards alternate sides and the dates sit
    opposite them. On narrow screens the line moves to the left edge. */

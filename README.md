@@ -86,9 +86,13 @@ If your tool needs a GPU or lives elsewhere, set **Runs with** to *An HTTP endpo
 
 No Docker? Playground demos say they can't run, and everything else keeps working. To preview the playground UI without Docker, use the stand-in: `DOCKER_BIN=tools/fake-docker.js npm start`.
 
+### Walkthroughs
+
+Any demo can have a **Walkthrough**: numbered steps with instructions and optional screenshots, shown beside the demo on wide screens and above it on phones. Step 2 of a demo lives at `/demos/<address>#step-2`, so other pages can link straight to it.
+
 ### 3. Somewhere else (embed)
 
-Paste the address of a Hugging Face Space, Streamlit app, StackBlitz project, YouTube video or asciinema recording.
+Paste the address of a Hugging Face Space, Streamlit app, StackBlitz project, YouTube video or asciinema recording. Tools running on your own machine (`http://localhost:<port>`) can be embedded too, which is handy for showing a full web app locally.
 
 ### A sensemaking page for several tools
 

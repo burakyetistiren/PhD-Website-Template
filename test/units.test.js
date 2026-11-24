@@ -110,6 +110,28 @@ test('themes: setting, preview override, fonts and custom link color', async () 
   assert.equal(validateFields(SINGLETONS.settings.fields, { siteTheme: 'neon' }).errors.siteTheme, 'Pick one of the listed options');
 });
 
+test('demos: walkthrough steps sit beside the demo with step anchors', async () => {
+  const { renderRoute } = await import('../site/render.js');
+  const content = normalizeContent({
+    profile: { name: 'A' },
+    demos: [{ id: 'd', slug: 'tool', title: 'Tool', kind: 'embed', embedUrl: 'http://localhost:3101', steps: [
+      { title: 'Open a file', text: 'Pick **any** file.' },
+      { title: 'Ask why', image: '/media/step2.png' },
+    ] }],
+  });
+  const page = renderRoute('/demos/tool', content, {}).html;
+  assert.match(page, /<div class="walk">\s*<ol class="walk-steps"/);
+  assert.match(page, /<li class="walk-step" id="step-2">/);
+  assert.match(page, /<strong>any<\/strong>/);
+  assert.match(page, /<img src="\/media\/step2\.png" alt="Step 2: Ask why"/);
+  assert.match(page, /<div class="walk-demo">[\s\S]*src="http:\/\/localhost:3101"/);
+  assert.match(page, /<span class="bench-title">Running on this computer<\/span>/, 'localhost tools are labelled as local');
+  assert.equal(validateItem('demos', { title: 'T', slug: 't', steps: [{ text: 'no title' }] }).errors['steps.0.title'], 'Step is required');
+  const plain = renderRoute('/demos/tool', normalizeContent({ profile: { name: 'A' }, demos: [{ id: 'd', slug: 'tool', title: 'Tool', kind: 'embed', embedUrl: 'https://x.y' }] }), {}).html;
+  assert.ok(!plain.includes('class="walk"'), 'no walkthrough markup without steps');
+  assert.match(plain, /<span class="bench-title">Hosted elsewhere<\/span>/);
+});
+
 test('schema: unique slugs, reserved page slugs, private fields', () => {
   const existing = [{ id: 'a', slug: 'tool' }];
   assert.match(validateItem('demos', { title: 'X', slug: 'tool' }, existing).errors.slug, /already uses/);

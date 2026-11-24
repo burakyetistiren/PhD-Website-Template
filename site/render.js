@@ -38,6 +38,10 @@ const DEMO_KIND_LABEL = {
   playground: 'Runs on this server',
   embed: 'Hosted elsewhere',
 };
+// An embedded tool running on the visitor's own machine (localhost) isn't hosted elsewhere.
+const LOCAL_HOST = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?(\/|$)/i;
+const demoKindLabel = (d) =>
+  d.kind === 'embed' && LOCAL_HOST.test(d.embedUrl || '') ? 'Running on this computer' : DEMO_KIND_LABEL[d.kind] || '';
 const EXPERIENCE_KIND_LABEL = {
   education: 'Education',
   research: 'Research',
@@ -262,7 +266,7 @@ function demoFrameSrc(ctx, demo) {
 }
 
 export function demoWidget(demo, ctx, { headingLevel = 2, showTitle = true } = {}) {
-  const title = showTitle ? html`<span class="bench-title">${demo.title}</span>` : html`<span class="bench-title">${DEMO_KIND_LABEL[demo.kind]}</span>`;
+  const title = showTitle ? html`<span class="bench-title">${demo.title}</span>` : html`<span class="bench-title">${demoKindLabel(demo)}</span>`;
   const height = Math.min(2000, Math.max(200, Number(demo.height) || 560));
 
   if (demo.kind === 'static' || demo.kind === 'embed') {
@@ -396,7 +400,7 @@ function projectList(ctx, projects, content) {
 function demoList(ctx, demos) {
   return html`<ol class="rows">${demos.map(
     (d) => html`<li class="row">
-  <div class="margin">${DEMO_KIND_LABEL[d.kind] || ''}</div>
+  <div class="margin">${demoKindLabel(d)}</div>
   <div class="row-body">
     <h3 class="item-title"><a href="${href(ctx, `/demos/${d.slug}`)}">${d.title}</a></h3>
     ${d.summary ? html`<p class="item-sub">${d.summary}</p>` : ''}
@@ -549,8 +553,21 @@ function demoPage(content, ctx, demo) {
   const isMe = nameMatcher(content.profile);
   const demosBySlug = new Map(content.demos.map((d) => [d.slug, d]));
   const related = pubs.length || projects.length || demo.repo;
+  const widget = demoWidget(demo, ctx, { showTitle: false });
+  const steps = demo.steps || [];
+  // A walkthrough puts numbered steps beside the demo; each step has an #step-N anchor.
+  const stage = steps.length
+    ? html`<div class="walk">
+  <ol class="walk-steps" aria-label="Walkthrough">${steps.map((s, i) => html`<li class="walk-step" id="step-${i + 1}">
+    <h2 class="walk-title"><a class="walk-n" href="#step-${i + 1}" aria-label="Step ${i + 1}">${i + 1}</a>${s.title}</h2>
+    ${s.text ? html`<div class="walk-text">${md(ctx, s.text, { headingOffset: 2 })}</div>` : ''}
+    ${s.image ? html`<a class="walk-shot" href="${href(ctx, s.image)}" target="_blank" rel="noopener"><img src="${href(ctx, s.image)}" alt="Step ${i + 1}: ${s.title}" loading="lazy"></a>` : ''}
+  </li>`)}</ol>
+  <div class="walk-demo">${widget}</div>
+</div>`
+    : widget;
   const body = html`${pageHeader(demo.title, demo.summary)}
-${demoWidget(demo, ctx, { showTitle: false })}
+${stage}
 <div class="demo-about">
   ${demo.description ? html`<div class="prose">${md(ctx, demo.description, { headingOffset: 1 })}</div>` : ''}
   ${related
